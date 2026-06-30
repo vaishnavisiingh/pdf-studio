@@ -1,0 +1,217 @@
+.toolbar-container {
+  position: relative;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--toolbar-height);
+  padding: 0 18px;
+  background: rgba(8, 9, 17, 0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  flex-wrap: wrap;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,0.02);
+  padding: 3px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0 2px;
+}
+
+.tool-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 13px;
+}
+
+.tool-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tool-btn.active {
+  color: var(--text-accent);
+  background: rgba(108, 99, 255, 0.16);
+  border-color: rgba(108, 99, 255, 0.4);
+  box-shadow: 0 0 10px rgba(108, 99, 255, 0.2);
+}
+
+.tool-icon { line-height: 1; }
+.tool-label { display: none; }
+
+.tool-btn-text {
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tool-btn-text:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.tool-btn-text.active {
+  color: var(--text-accent);
+  background: rgba(108, 99, 255, 0.16);
+  border-color: rgba(108, 99, 255, 0.4);
+}
+
+.tool-btn-text.danger {
+  color: rgba(248, 113, 113, 0.75);
+}
+
+.tool-btn-text.danger:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--danger);
+}
+
+.tool-btn-text.danger.active {
+  color: var(--danger);
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.font-panel {
+  position: absolute;
+  top: calc(var(--toolbar-height) + 10px);
+  left: 16px;
+  width: 280px;
+  background: rgba(17, 19, 38, 0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  z-index: 80;
+}
+
+.font-panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 12px;
+}
+
+.font-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.font-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.font-field label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.font-field select,
+.font-field input {
+  height: 28px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 0 8px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.font-field select:focus,
+.font-field input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.panel-error {
+  font-size: 11px;
+  color: var(--danger);
+  margin-bottom: 10px;
+}
+
+.font-panel-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancel-btn, .apply-btn {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+
+.cancel-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+}
+
+.apply-btn {
+  background: var(--accent-primary);
+  border: none;
+  color: #fff;
+}
+
+.apply-btn:hover {
+  background: #564eff;
+  box-shadow: 0 0 12px rgba(108, 99, 255, 0.3);
+}
+
+.apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,50 @@
+.docinfo {
+  padding: 16px;
+  border-top: 1px solid var(--border-default);
+  background: rgba(7, 8, 16, 0.4);
+  flex-shrink: 0;
+}
+
+.docinfo-header {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+
+.docinfo-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.docinfo-field {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.docinfo-label {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.docinfo-value {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.docinfo-loading {
+  padding: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}

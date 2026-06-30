@@ -1,0 +1,111 @@
+.stamp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.stamp-panel {
+  background: white;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.stamp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+.stamp-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.8;
+}
+.stamp-close:hover { opacity: 1; }
+.stamp-body { padding: 16px 18px; }
+.stamp-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.stamp-preset {
+  padding: 4px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #374151;
+  letter-spacing: 0.03em;
+}
+.stamp-preset:hover { background: #f3f4f6; }
+.stamp-preset.active { background: #dc2626; color: white; border-color: #dc2626; }
+.stamp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.stamp-field label { font-size: 11px; color: #6b7280; font-weight: 500; }
+.stamp-field input, .stamp-field select {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.stamp-field input:focus, .stamp-field select:focus { border-color: #dc2626; }
+.stamp-row { display: flex; gap: 16px; }
+.stamp-row .stamp-field { flex: 1; }
+.stamp-preview {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+}
+.stamp-preview-box {
+  border: 2.5px solid;
+  border-radius: 4px;
+  padding: 8px 20px;
+  text-align: center;
+  display: inline-block;
+}
+.stamp-preview-text { font-size: 20px; font-weight: 700; letter-spacing: 0.08em; }
+.stamp-preview-date { font-size: 11px; margin-top: 2px; letter-spacing: 0.04em; }
+.stamp-footer {
+  padding: 12px 18px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+.stamp-note { font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
+.stamp-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.stamp-cancel {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+.stamp-insert {
+  padding: 8px 20px;
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.stamp-insert:disabled { opacity: 0.5; cursor: not-allowed; }

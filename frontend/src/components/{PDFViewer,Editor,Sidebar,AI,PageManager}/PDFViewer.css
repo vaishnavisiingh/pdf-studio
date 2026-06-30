@@ -1,0 +1,128 @@
+/* ==========================================================================
+   PDF VIEWER CONTAINER
+   ========================================================================== */
+   .pdf-viewer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .pdf-canvas-area {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    background: radial-gradient(circle at 50% 40%, rgba(20, 22, 43, 0.25) 0%, transparent 100%);
+  }
+  
+  /* ==========================================================================
+     PAGE RENDER STRUCTURE
+     ========================================================================== */
+  .page-wrapper {
+    position: relative;
+    margin-bottom: 40px;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.08), 
+      0 24px 80px rgba(0, 0, 0, 0.7);
+    transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    animation: pageFadeIn 0.25s ease-out forwards;
+  }
+  
+  /* Halo aura around primary work document */
+  .page-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -15px;
+    border-radius: 20px;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.06) 0%, rgba(108, 99, 255, 0) 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .page-wrapper canvas {
+    display: block;
+    border-radius: 6px;
+  }
+  
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Page Loaders & Empty states */
+  .page-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 15, 30, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 6px;
+    z-index: 10;
+  }
+  
+  .no-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    height: 100%;
+  }
+  
+  /* ==========================================================================
+     VIEWPORT NAVIGATION & ZOOM CONTROLS
+     ========================================================================== */
+  .zoom-controls {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(17, 19, 38, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-default);
+    padding: 4px;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+  
+  .zoom-controls .btn {
+    border: none;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px;
+    color: var(--text-secondary);
+  }
+  
+  .zoom-controls .btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+  
+  .page-info {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 0 12px;
+    min-width: 72px;
+    text-align: center;
+    user-select: none;
+  }

@@ -1,0 +1,57 @@
+.pd-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000;
+}
+.pd-panel {
+  background: white; border-radius: 12px; width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+}
+.pd-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #064e3b, #059669);
+  color: white; font-size: 14px; font-weight: 600;
+}
+.pd-close { background: none; border: none; color: white; cursor: pointer; font-size: 16px; opacity: 0.8; }
+.pd-close:hover { opacity: 1; }
+.pd-tabs { display: flex; border-bottom: 1px solid #e5e7eb; }
+.pd-tab {
+  flex: 1; padding: 10px 4px; border: none; background: #f9fafb;
+  font-size: 12px; cursor: pointer; color: #6b7280; font-weight: 500;
+}
+.pd-tab.active { background: white; color: #059669; border-bottom: 2px solid #059669; }
+.pd-body { padding: 18px; }
+.pd-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.pd-field label { font-size: 11px; color: #6b7280; font-weight: 500; }
+.pd-field input, .pd-field select {
+  padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 13px; outline: none;
+}
+.pd-field input:focus, .pd-field select:focus { border-color: #059669; }
+.pd-row { display: flex; gap: 12px; }
+.pd-row .pd-field { flex: 1; }
+.pd-preview {
+  font-size: 12px; color: #6b7280; background: #f9fafb;
+  padding: 8px 12px; border-radius: 6px; margin-bottom: 4px;
+}
+.pd-preview-num { font-weight: 700; color: #059669; }
+.pd-check { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; color: #374151; }
+.pd-angle-btns { display: flex; gap: 8px; }
+.pd-angle-btn {
+  flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;
+  background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: #374151;
+}
+.pd-angle-btn.active { background: #059669; color: white; border-color: #059669; }
+.pd-message { font-size: 12px; color: #059669; margin-top: 8px; font-weight: 500; }
+.pd-footer {
+  padding: 12px 18px 16px; border-top: 1px solid #e5e7eb;
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.pd-cancel { padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; background: white; font-size: 13px; cursor: pointer; }
+.pd-apply {
+  padding: 8px 20px; background: linear-gradient(135deg, #064e3b, #059669);
+  color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.pd-apply:disabled { opacity: 0.5; cursor: not-allowed; }

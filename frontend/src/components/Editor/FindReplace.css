@@ -1,0 +1,108 @@
+/* ==========================================================================
+   FIND & REPLACE CONTAINER (SLIDING PANEL)
+   ========================================================================== */
+   .fr-panel,
+   .find-replace-panel {
+     position: absolute;
+     top: calc(var(--topbar-height) + 1px);
+     left: 50%;
+     transform: translateX(-50%) translateY(0);
+     width: 480px;
+     background: rgba(11, 13, 26, 0.94);
+     backdrop-filter: blur(20px);
+     border: 1px solid var(--border-default);
+     border-top: none;
+     border-bottom-left-radius: 10px;
+     border-bottom-right-radius: 10px;
+     padding: 14px;
+     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+     z-index: 85;
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+     animation: frSlideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+   }
+   
+   @keyframes frSlideDown {
+     from { transform: translateX(-50%) translateY(-10px); opacity: 0; }
+     to { transform: translateX(-50%) translateY(0); opacity: 1; }
+   }
+   
+   /* ==========================================================================
+      INPUT FIELDS
+      ========================================================================== */
+   .fr-row {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   .fr-input {
+     flex: 1;
+     height: 28px;
+     background: rgba(0, 0, 0, 0.25);
+     border: 1px solid var(--border-default);
+     border-radius: 6px;
+     color: var(--text-primary);
+     padding: 0 8px;
+     font-family: var(--font-sans);
+     font-size: 11px;
+     outline: none;
+     transition: all 0.15s ease;
+   }
+   
+   .fr-input:focus {
+     border-color: var(--accent-primary);
+     box-shadow: 0 0 0 2px var(--accent-glow);
+   }
+   
+   /* ==========================================================================
+      CONTROL BUTTONS
+      ========================================================================== */
+   .fr-btn {
+     height: 28px;
+     padding: 0 12px;
+     background: var(--bg-hover);
+     border: 1px solid var(--border-default);
+     border-radius: 6px;
+     color: var(--text-primary);
+     font-size: 11px;
+     font-weight: 500;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 4px;
+     transition: all 0.15s ease;
+   }
+   
+   .fr-btn:hover {
+     background: rgba(255, 255, 255, 0.08);
+     border-color: rgba(255, 255, 255, 0.12);
+   }
+   
+   .fr-btn:active {
+     transform: scale(0.97);
+   }
+   
+   .fr-btn.primary {
+     background: rgba(108, 99, 255, 0.2);
+     border-color: rgba(108, 99, 255, 0.4);
+     color: var(--text-accent);
+   }
+   
+   .fr-btn.primary:hover {
+     background: rgba(108, 99, 255, 0.28);
+     border-color: var(--accent-primary);
+   }
+   
+   /* ==========================================================================
+      RESULTS COUNTER
+      ========================================================================== */
+   .fr-results {
+     font-family: var(--font-mono);
+     font-size: 10px;
+     color: var(--text-secondary);
+     padding: 0 4px;
+     user-select: none;
+   }

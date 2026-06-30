@@ -1,0 +1,35 @@
+{
+  "name": "pdf-studio",
+  "version": "0.1.0",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev":          "vite",
+    "build":        "vite build",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "axios":   "^1.7.2",
+    "react":   "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "concurrently":   "^8.2.2",
+    "electron":       "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "vite":           "^5.3.1",
+    "wait-on":        "^7.2.0"
+  },
+  "build": {
+    "appId": "com.pdfstudio.app",
+    "productName": "PDF Studio",
+    "directories": { "output": "dist-electron" },
+    "extraResources": [{ "from": "../backend", "to": "backend" }],
+    "mac":     { "target": "dmg" },
+    "win":     { "target": "nsis" },
+    "linux":   { "target": "AppImage" }
+  }
+}

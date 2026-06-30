@@ -1,0 +1,117 @@
+.pm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.pm-panel {
+  background: white;
+  border-radius: 12px;
+  width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.pm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pm-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.8;
+}
+.pm-close:hover { opacity: 1; }
+
+.pm-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pm-tab {
+  flex: 1;
+  padding: 10px 4px;
+  border: none;
+  background: #f9fafb;
+  font-size: 12px;
+  cursor: pointer;
+  color: #6b7280;
+  font-weight: 500;
+}
+.pm-tab.active {
+  background: white;
+  color: #1e40af;
+  border-bottom: 2px solid #1e40af;
+}
+
+.pm-body { padding: 18px; }
+
+.pm-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.pm-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  outline: none;
+}
+.pm-input:focus { border-color: #1e40af; }
+
+.pm-dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  margin-bottom: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+}
+.pm-dropzone:hover { border-color: #1e40af; background: #eff6ff; }
+
+.pm-action {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pm-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pm-message {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #059669;
+  font-weight: 500;
+}
