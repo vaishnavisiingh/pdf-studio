@@ -1,40 +1,51 @@
-# PDF Studio
-### Powered by ID-REP — Intelligent Document Representation
+# PDF Studio — Powered by ID-REP
 
-A desktop application for academic document intelligence.
+A desktop PDF editor with AI capabilities built with Electron + React + Python.
 
-## Stack
-- **Frontend**: Electron + React + Vite
-- **Backend**: Python + FastAPI
-- **PDF Engine**: PyMuPDF + pdfplumber
-- **AI**: Anthropic Claude API
-- **Database**: SQLite
+## Requirements
 
-## Getting Started
+### Python (Backend)
+- Python 3.10+
+- pip
 
-### Backend
+### Node.js (Frontend)
+- Node.js 18+
+- npm
+
+## Setup & Run
+
+### Step 1 — Backend Setup
 ```bash
 cd backend
 pip install -r requirements.txt
-python main.py
 ```
 
-### Frontend
+Create `.env` file in `backend/` folder:
+Get free API key from: https://console.groq.com
+
+Start backend:
+```bash
+python main.py
+```
+Backend runs on http://127.0.0.1:8000
+
+### Step 2 — Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run electron:dev
 ```
 
-## Architecture
-All document operations go through the **ID-REP** (Intelligent Document Representation) semantic tree.
-Raw PDFs are parsed into a structured tree on open. All edits mutate the tree. The renderer
-converts the tree back to pages for display.
+## For OCR (Optional)
 
-```
-PDF file → IDRepBuilder → IDRepDocument (tree)
-                               ↕
-                         IDRepEditor (mutations)
-                               ↕
-                         IDRepRenderer → page images → UI
-```
+Install Tesseract:
+- **macOS:** `brew install tesseract`
+- **Windows:** Download from https://github.com/UB-Mannheim/tesseract/wiki
+- **Linux:** `sudo apt install tesseract-ocr`
+
+## Tech Stack
+- **Frontend:** Electron + React + Vite
+- **Backend:** Python + FastAPI
+- **PDF Engine:** PyMuPDF
+- **AI:** Groq API (Llama 3.1 8B) — free tier
+- **OCR:** Tesseract
