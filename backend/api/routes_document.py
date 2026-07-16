@@ -509,3 +509,54 @@ async def insert_equation(doc_id: str, page: int, x: float, y: float, equation: 
         raise HTTPException(500, f"Insert equation failed: {str(e)}")
 
     return {"success": True}
+
+
+@router.get("/{doc_id}/history")
+async def get_history(doc_id: str):
+    """Return list of snapshots with metadata."""
+    session = _sessions.get(doc_id)
+    if not session:
+        raise HTTPException(404, "Document not found")
+    
+    history = session.get("history", [])
+    history_index = session.get("history_index", -1)
+    
+    snapshots = []
+    for i, path in enumerate(history):
+        try:
+            size = os.path.getsize(path)
+            mtime = os.path.getmtime(path)
+            import datetime
+            snapshots.append({
+                "index": i,
+                "size": size,
+                "timestamp": datetime.datetime.fromtimestamp(mtime).strftime("%H:%M:%S"),
+                "is_current": i == history_index,
+                "label": "Original" if i == 0 else f"Version {i}",
+            })
+        except:
+            pass
+    
+    return {"snapshots": snapshots, "current_index": history_index}
+
+
+@router.post("/{doc_id}/restore/{snapshot_index}")
+async def restore_snapshot(doc_id: str, snapshot_index: int):
+    """Restore a specific snapshot."""
+    session = _sessions.get(doc_id)
+    if not session:
+        raise HTTPException(404, "Document not found")
+    
+    history = session.get("history", [])
+    if snapshot_index < 0 or snapshot_index >= len(history):
+        raise HTTPException(400, "Invalid snapshot index")
+    
+    snapshot_path = history[snapshot_index]
+    if not os.path.exists(snapshot_path):
+        raise HTTPException(404, "Snapshot file not found")
+    
+    shutil.copy2(snapshot_path, session["idrep"].file_path)
+    session["history_index"] = snapshot_index
+    session["renderer"].invalidate_all()
+    
+    return {"success": True, "restored_index": snapshot_index}

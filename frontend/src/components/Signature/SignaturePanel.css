@@ -186,3 +186,39 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.sig-upload-area {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sig-dropzone {
+  width: 100%;
+  border: 2px dashed rgba(108,99,255,0.3);
+  border-radius: 10px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(108,99,255,0.04);
+}
+
+.sig-dropzone:hover {
+  border-color: rgba(108,99,255,0.6);
+  background: rgba(108,99,255,0.08);
+}
+
+.sig-upload-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}

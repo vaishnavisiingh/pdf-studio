@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useDocument } from "./hooks/useDocument";
 import useDocumentStore from "./store/documentStore";
 import useUIStore from "./store/uiStore";
@@ -12,10 +12,12 @@ import PageManager from "./components/PageManager/PageManager";
 import OCRPanel from "./components/OCR/OCRPanel";
 import PageDecorPanel from "./components/PageDecor/PageDecorPanel";
 import PresentationMode from "./components/PDFViewer/PresentationMode";
-import SettingsPanel from "./components/Settings/SettingsPanel";
 import CropPanel from "./components/Crop/CropPanel";
+import ConvertPanel from "./components/Convert/ConvertPanel";
+import SettingsPanel from "./components/Settings/SettingsPanel";
+import CompressPanel from "./components/Compress/CompressPanel";
+import VersionHistoryPanel from "./components/VersionHistory/VersionHistoryPanel";
 
-// ── tiny helper ──────────────────────────────────────────────────────────────
 function saveRecentDoc(filePath) {
   try {
     const name = filePath.split("/").pop();
@@ -26,59 +28,6 @@ function saveRecentDoc(filePath) {
   } catch {}
 }
 
-function timeAgo(ts) {
-  const diff = Date.now() - ts;
-  const m = Math.floor(diff / 60000);
-  if (m < 1)  return "Just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
-
-// ── tooltip button ────────────────────────────────────────────────────────────
-function TipBtn({ title, onClick, children, active, danger, accent, style = {} }) {
-  const [hov, setHov] = useState(false);
-  const base = {
-    position: "relative", display: "inline-flex", alignItems: "center",
-    justifyContent: "center", width: 32, height: 32, borderRadius: 7,
-    border: "1px solid transparent", background: "transparent",
-    color: active ? "#c4bfff" : "rgba(232,234,246,0.65)",
-    cursor: "pointer", fontSize: 15, transition: "all 0.15s ease",
-    ...(active  ? { background: "rgba(108,99,255,0.18)", borderColor: "rgba(108,99,255,0.4)" } : {}),
-    ...(danger  ? { color: "#f87171" } : {}),
-    ...(accent  ? { color: "#c4bfff" } : {}),
-    ...(hov && !active ? { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)", color: "#fff" } : {}),
-    ...style,
-  };
-  return (
-    <button
-      style={base}
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      title=""
-    >
-      {children}
-      {hov && (
-        <span style={{
-          position: "absolute", top: "calc(100% + 8px)", left: "50%",
-          transform: "translateX(-50%)", background: "rgba(17,19,38,0.97)",
-          border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6,
-          padding: "4px 10px", fontSize: 11, fontWeight: 500, whiteSpace: "nowrap",
-          color: "#e8eaf6", pointerEvents: "none", zIndex: 9999,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
-        }}>{title}</span>
-      )}
-    </button>
-  );
-}
-
-function Divider() {
-  return <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.07)", margin: "0 4px", flexShrink: 0 }} />;
-}
-
-// ── main app ──────────────────────────────────────────────────────────────────
 export default function App() {
   const { open, error }            = useDocument();
   const { activeDocId, documents } = useDocumentStore();
@@ -87,6 +36,33 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [refreshKey, setRefreshKey]   = useState(0);
   const [showAI, setShowAI]           = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem("pdfstudio_theme") || "dark");
+
+  const makePdfItemStyle = {
+    display: "flex", alignItems: "center", gap: 10,
+    width: "100%", padding: "8px 10px", borderRadius: 7,
+    border: "none", background: "transparent",
+    cursor: "pointer", textAlign: "left",
+    transition: "background 0.15s ease",
+  };
+
+  // Close Make PDF dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (makePdfRef.current && !makePdfRef.current.contains(e.target)) {
+        setShowMakePdf(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+
+  return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("pdfstudio_theme", theme);
+  }, [theme]);
   const [activeTool, setActiveTool]   = useState(null);
 
   const [showSignature, setShowSignature]       = useState(false);
@@ -97,13 +73,17 @@ export default function App() {
   const [showPageDecor, setShowPageDecor]       = useState(false);
   const [showOCR, setShowOCR]                   = useState(false);
   const [showPresentation, setShowPresentation] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showCrop, setShowCrop]                 = useState(false);
+  const [showMakePdf, setShowMakePdf]           = useState(false);
+  const [showCompress, setShowCompress]         = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const makePdfRef = useRef(null);
   const [cropMode, setCropMode]                 = useState(false);
   const [cropApplyAll, setCropApplyAll]         = useState(false);
+  const [showConvert, setShowConvert]           = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const activeDoc = activeDocId ? documents[activeDocId] : null;
-
   const handleRefreshPage = useCallback(() => setRefreshKey(k => k + 1), []);
 
   const handleOpenFile = async () => {
@@ -121,7 +101,7 @@ export default function App() {
   };
 
   const handleGoHome = () => {
-    if (activeDocId) useDocumentStore.getState().closeDocument?.(activeDocId);
+    useDocumentStore.getState().closeDocument?.(activeDocId);
   };
 
   const handleImportDocx = async () => {
@@ -133,10 +113,35 @@ export default function App() {
       try {
         useUIStore.getState().setLoading(true, "Converting Word document...");
         const res = await fetch("http://127.0.0.1:8000/api/import/docx", { method: "POST", body: fd });
-        const d   = await res.json();
+        const d = await res.json();
         useDocumentStore.getState().openDocument(d.id, d);
         setCurrentPage(0);
       } catch {}
+      finally { useUIStore.getState().setLoading(false); }
+    };
+    input.click();
+  };
+
+  const handlePptToPdf = async () => {
+    const input  = document.createElement("input");
+    input.type   = "file";
+    input.accept = ".ppt,.pptx";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        useUIStore.getState().setLoading(true, "Converting PPT to PDF...");
+        const res = await fetch("http://127.0.0.1:8000/api/convert/ppt-to-pdf", { method: "POST", body: formData });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement("a");
+          a.href = url; a.download = "converted.pdf"; a.click();
+          URL.revokeObjectURL(url);
+        }
+      } catch (err) { console.error("PPT to PDF failed:", err); }
       finally { useUIStore.getState().setLoading(false); }
     };
     input.click();
@@ -152,8 +157,7 @@ export default function App() {
         useUIStore.getState().setLoading(true, "Converting images to PDF...");
         const res = await fetch("http://127.0.0.1:8000/api/images-to-pdf/convert", { method: "POST", body: fd });
         if (res.ok) {
-          const blob = await res.blob();
-          const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "images.pdf" });
+          const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(await res.blob()), download: "images.pdf" });
           a.click();
         }
       } catch {}
@@ -192,7 +196,9 @@ export default function App() {
   const handleSignaturePlaced = async (x, y) => {
     if (!pendingSignature || !activeDocId) return;
     const sig = pendingSignature; setPendingSignature(null);
-    await fetch(sig.mode === "type" ? "http://127.0.0.1:8000/api/signature/text" : "http://127.0.0.1:8000/api/signature/image", {
+    await fetch(sig.mode === "type"
+      ? "http://127.0.0.1:8000/api/signature/text"
+      : "http://127.0.0.1:8000/api/signature/image", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sig.mode === "type"
         ? { doc_id: activeDocId, page: currentPage, x, y, name: sig.name, fontsize: sig.fontsize, color: sig.color }
@@ -223,78 +229,123 @@ export default function App() {
   const pendingPlacement = pendingSignature || pendingStamp;
   const handlePlacement  = (x, y) => pendingSignature ? handleSignaturePlaced(x, y) : handleStampPlaced(x, y);
 
+  // callbacks object passed to Toolbar so it can trigger modals/actions
+  const toolbarCallbacks = {
+    onSave:         handleSavePDF,
+    onUndo:         handleUndo,
+    onRedo:         handleRedo,
+    onRevert:       handleRevert,
+    onImportDocx:   handleImportDocx,
+    onShowCompress:  () => setShowCompress(true),
+    onShowVersionHistory: () => setShowVersionHistory(true),
+    onImagesToPDF:  handleImagesToPDF,
+    onShowPages:    () => setShowPageManager(true),
+    onShowPageDecor:() => setShowPageDecor(true),
+    onShowCrop:     () => setShowCrop(true),
+    onShowConvert:  () => setShowConvert(true),
+    onShowOCR:      () => setShowOCR(true),
+    onShowPresent:  () => setShowPresentation(true),
+    onShowStamp:    () => setShowStamp(true),
+    onShowSignature:() => setShowSignature(true),
+    onShowAI:       () => setShowAI(v => !v),
+    showAI,
+  };
+
   return (
     <div className="app-shell">
-      {/* ── TOPBAR ── */}
+      {/* ── TOPBAR — minimal ── */}
       <header className="topbar">
-        {/* Left: logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-          <span
-            className="logo"
-            onClick={handleGoHome}
-            style={{ cursor: "pointer", userSelect: "none" }}
-          >PDF Studio</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="logo" onClick={handleGoHome} style={{ cursor: "pointer", userSelect: "none" }}>
+            PDF Studio
+          </span>
           <span className="idrep-badge">ID-REP</span>
         </div>
 
-        {/* Center: doc-aware actions */}
-        {activeDocId ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1, justifyContent: "center" }}>
-            {/* File group */}
+        <div style={{ flex: 1 }} />
 
-            <TipBtn title="Import Word" onClick={handleImportDocx}>📄</TipBtn>
-            <TipBtn title="Images → PDF" onClick={handleImagesToPDF}>🖼</TipBtn>
-            <TipBtn title="Save PDF" onClick={handleSavePDF} accent>💾</TipBtn>
-            <Divider />
-            {/* History group */}
-            <TipBtn title="Undo" onClick={handleUndo}>↩</TipBtn>
-            <TipBtn title="Redo" onClick={handleRedo}>↪</TipBtn>
-            <TipBtn title="Revert to original" onClick={handleRevert} danger>⟳</TipBtn>
-            <Divider />
-            {/* Page group */}
-            <TipBtn title="Pages (extract/split/merge)" onClick={() => setShowPageManager(true)}>⊞</TipBtn>
-            <TipBtn title="Page Tools (numbering/header/rotate)" onClick={() => setShowPageDecor(true)}>📐</TipBtn>
-            <TipBtn title="Crop & Resize" onClick={() => setShowCrop(true)}>✂</TipBtn>
-            <TipBtn title="OCR — make scanned PDF searchable" onClick={() => setShowOCR(true)}>🔍</TipBtn>
-            <TipBtn title="Presentation mode" onClick={() => setShowPresentation(true)}>⛶</TipBtn>
-            <Divider />
-            {/* Annotation group */}
-            <TipBtn
-              title={pendingStamp ? "Cancel stamp placement" : "Add stamp"}
-              onClick={() => pendingStamp ? setPendingStamp(null) : setShowStamp(true)}
-              active={!!pendingStamp}
-            >🔖</TipBtn>
-            <TipBtn
-              title={pendingSignature ? "Cancel signature placement" : "Add signature"}
-              onClick={() => pendingSignature ? setPendingSignature(null) : setShowSignature(true)}
-              active={!!pendingSignature}
-            >✍</TipBtn>
-            <Divider />
-            {/* AI */}
-            <TipBtn title="AI Assistant" onClick={() => setShowAI(v => !v)} active={showAI} accent>✦</TipBtn>
-          </div>
-        ) : (
-          /* Welcome-screen topbar — minimal */
-          <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1, justifyContent: "flex-end" }}>
-            <TipBtn title="Import Word" onClick={handleImportDocx}>📄</TipBtn>
-            <TipBtn title="Images → PDF" onClick={handleImagesToPDF}>🖼</TipBtn>
-          </div>
-        )}
-
-        {/* Right: always-visible open button when doc is active */}
         {activeDocId && (
-          <div style={{ flexShrink: 0, marginLeft: 8 }}>
-            <TipBtn title="Open PDF" onClick={handleOpenFile} style={{ width: "auto", padding: "0 14px", borderRadius: 8, background: "rgba(108,99,255,0.15)", borderColor: "rgba(108,99,255,0.35)", color: "#c4bfff", fontSize: 12, fontWeight: 600 }}>
-              Open PDF
-            </TipBtn>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginRight: 10 }}>
+            <div className="topbar-btn-group">
+              <button onClick={handleUndo} title="Undo" className="topbar-icon-btn">↩</button>
+              <button onClick={handleRedo} title="Redo" className="topbar-icon-btn">↪</button>
+              <button onClick={handleRevert} title="Revert to original" className="topbar-icon-btn danger">⟳</button>
+            </div>
+            <button onClick={() => setShowVersionHistory(true)} title="Version History" className="topbar-text-btn">🕒 History</button>
+            <button onClick={() => setShowCompress(true)} title="Compress PDF" className="topbar-text-btn">🗜 Compress</button>
+            <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
+            <button onClick={() => setShowAI(a => !a)} title="AI Assistant" className={`topbar-text-btn accent${showAI ? " active" : ""}`}>
+              ✨ AI
+            </button>
+            <button onClick={() => setShowPresentation(true)} title="Presentation Mode" className="topbar-text-btn">
+              ⛶ Present
+            </button>
+            <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
           </div>
         )}
 
-        {/* Settings gear */}
-        <TipBtn title="Settings" onClick={() => setShowSettings(true)} style={{ marginLeft: 6 }}>⚙️</TipBtn>
+        <div style={{ position: "relative" }} ref={makePdfRef}>
+          <button
+            onClick={() => setShowMakePdf(m => !m)}
+            style={{
+              height: 32, padding: "0 14px", borderRadius: 8,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "var(--text-secondary)", fontSize: 12, fontWeight: 600,
+              cursor: "pointer", letterSpacing: "0.2px",
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            📄 Make PDF <span style={{ fontSize: 9, opacity: 0.6 }}>▼</span>
+          </button>
+          {showMakePdf && (
+            <div style={{
+              position: "absolute", top: 38, right: 0,
+              background: "var(--bg-panel)", border: "1px solid var(--border-default)",
+              borderRadius: 10, padding: 6, minWidth: 200,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)", zIndex: 200,
+            }}>
+              <button onClick={() => { handleImportDocx(); setShowMakePdf(false); }} style={makePdfItemStyle}>
+                <span>📝</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>Word → PDF</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Import .docx file</div>
+                </div>
+              </button>
+              <button onClick={() => { handleImagesToPDF(); setShowMakePdf(false); }} style={makePdfItemStyle}>
+                <span>🖼</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>Images → PDF</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Combine images into PDF</div>
+                </div>
+              </button>
+              <button onClick={() => { handlePptToPdf(); setShowMakePdf(false); }} style={makePdfItemStyle}>
+                <span>📊</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>PPT → PDF</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>PowerPoint to PDF</div>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={handleOpenFile}
+          style={{
+            height: 32, padding: "0 18px", borderRadius: 8,
+            background: "linear-gradient(135deg, #6c63ff, #8b5cf6)",
+            border: "none", color: "#fff", fontSize: 12, fontWeight: 600,
+            cursor: "pointer", letterSpacing: "0.2px",
+            boxShadow: "0 2px 12px rgba(108,99,255,0.35)",
+          }}
+        >
+          Open PDF
+        </button>
+        <button onClick={() => setShowSettings(true)} title="Settings" className="topbar-icon-btn settings-btn">⚙️</button>
       </header>
 
-      {/* ── PLACEMENT BANNERS ── */}
+      {/* ── BANNERS ── */}
       {pendingPlacement && (
         <div style={{ background: "rgba(108,99,255,0.15)", borderBottom: "1px solid rgba(108,99,255,0.3)", color: "#c4bfff", padding: "7px 20px", fontSize: 12, fontWeight: 500, textAlign: "center" }}>
           {pendingSignature ? "Click anywhere on the PDF to place your signature" : "Click anywhere on the PDF to place the stamp"}
@@ -326,12 +377,14 @@ export default function App() {
               onRefreshPage={handleRefreshPage}
               activeTool={activeTool}
               onToolChange={setActiveTool}
+              callbacks={toolbarCallbacks}
             />
           )}
 
           {loading && (
             <div className="loading-overlay">
-              <div className="spinner" /><p style={{ color: "var(--text-secondary)", fontSize: 13 }}>{loadingMsg}</p>
+              <div className="spinner" />
+              <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>{loadingMsg}</p>
             </div>
           )}
           {error && <div className="error-banner">{error}</div>}
@@ -381,35 +434,41 @@ export default function App() {
           onComplete={mode => { if (mode === "crop_mode") { setCropMode(true); setCropApplyAll(false); } else { handleRefreshPage(); setShowCrop(false); } }}
         />
       )}
+      {showConvert && (
+        <ConvertPanel onClose={() => setShowConvert(false)} />
+      )}
       {showPresentation && activeDocId && (
         <PresentationMode docId={activeDocId} totalPages={activeDoc?.totalPages || 0} startPage={currentPage} onClose={() => setShowPresentation(false)} />
       )}
+      {showVersionHistory && activeDocId && (
+        <VersionHistoryPanel
+          docId={activeDocId}
+          onClose={() => setShowVersionHistory(false)}
+          onRestore={() => { handleRefreshPage(); }}
+        />
+      )}
+      {showCompress && activeDocId && (
+        <CompressPanel
+          docId={activeDocId}
+          onClose={() => setShowCompress(false)}
+          onComplete={() => { handleRefreshPage(); }}
+        />
+      )}
       {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
+        <SettingsPanel onClose={() => setShowSettings(false)} theme={theme} setTheme={setTheme} />
       )}
     </div>
   );
 }
 
-// ── WELCOME SCREEN ────────────────────────────────────────────────────────────
 function WelcomeScreen({ onOpen, onOpenRecent }) {
   const [recent, setRecent] = useState([]);
-
   useEffect(() => {
-    try {
-      setRecent(JSON.parse(localStorage.getItem("recentDocs") || "[]"));
-    } catch {}
+    try { setRecent(JSON.parse(localStorage.getItem("recentDocs") || "[]")); } catch {}
   }, []);
 
   return (
-    <div style={{
-      flex: 1, display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      background: "var(--bg-app-shell)", padding: "40px 32px 60px",
-      overflowY: "auto", position: "relative",
-    }}>
-
-      {/* Open PDF CTA */}
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg-app-shell)", padding: "40px 32px 60px", overflowY: "auto" }}>
       <button
         onClick={onOpen}
         style={{
@@ -418,71 +477,32 @@ function WelcomeScreen({ onOpen, onOpenRecent }) {
           border: "none", color: "#fff", cursor: "pointer",
           display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
           boxShadow: "0 8px 32px rgba(108,99,255,0.35)",
-          transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
-          marginBottom: 56,
+          transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", marginBottom: 56,
         }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = "translateY(-3px)";
-          e.currentTarget.style.boxShadow = "0 16px 48px rgba(108,99,255,0.5)";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = "";
-          e.currentTarget.style.boxShadow = "0 8px 32px rgba(108,99,255,0.35)";
-        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 16px 48px rgba(108,99,255,0.5)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 32px rgba(108,99,255,0.35)"; }}
       >
         <span style={{ fontSize: 42 }}>📂</span>
         <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.3px" }}>Open PDF</span>
       </button>
 
-      {/* Recent documents */}
       {recent.length > 0 && (
         <div style={{ width: "100%", maxWidth: 800 }}>
-          <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(139,144,184,0.6)" }}>Recent Documents</span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
             {recent.slice(0, 3).map((doc, i) => (
-              <div
-                key={i}
-                onClick={() => onOpenRecent(doc.path)}
-                style={{
-                  position: "relative",
-                  background: "linear-gradient(145deg, rgba(26,28,48,0.6), rgba(18,20,36,0.6))",
-                  backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(255,255,255,0.05)", borderRadius: 14,
-                  padding: "18px 18px 16px", display: "flex", alignItems: "center",
-                  gap: 14, cursor: "pointer",
-                  transition: "all 0.25s cubic-bezier(0.16,1,0.3,1)",
-                  boxShadow: "0 1px 0 rgba(255,255,255,0.03) inset",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = "rgba(108,99,255,0.4)";
-                  e.currentTarget.style.background = "linear-gradient(145deg, rgba(40,36,72,0.75), rgba(24,22,42,0.75))";
-                  e.currentTarget.style.transform = "translateY(-3px)";
-                  e.currentTarget.style.boxShadow = "0 12px 28px rgba(108,99,255,0.18), 0 1px 0 rgba(255,255,255,0.05) inset";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)";
-                  e.currentTarget.style.background = "linear-gradient(145deg, rgba(26,28,48,0.6), rgba(18,20,36,0.6))";
-                  e.currentTarget.style.transform = "";
-                  e.currentTarget.style.boxShadow = "0 1px 0 rgba(255,255,255,0.03) inset";
-                }}
+              <div key={i} onClick={() => onOpenRecent(doc.path)}
+                style={{ background: "rgba(26,28,48,0.6)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 14, padding: "18px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer", transition: "all 0.25s ease" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(108,99,255,0.4)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 28px rgba(108,99,255,0.18)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
               >
-                <div style={{
-                  width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                  background: "linear-gradient(135deg, rgba(108,99,255,0.18), rgba(139,94,247,0.1))",
-                  border: "1px solid rgba(108,99,255,0.2)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 16,
-                }}>📄</div>
-                <div style={{ overflow: "hidden", flex: 1 }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "#e8eaf6", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {(doc.name || doc.path.split("/").pop()).replace(/\.pdf$/i, "")}
-                  </div>
-                  <div style={{ fontSize: 10.5, color: "rgba(139,144,184,0.55)", marginTop: 3, letterSpacing: "0.2px" }}>
-                    {doc.time ? new Date(doc.time).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
-                  </div>
+                <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: "rgba(108,99,255,0.15)", border: "1px solid rgba(108,99,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📄</div>
+                <div style={{ overflow: "hidden" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "#e8eaf6", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{(doc.name || "").replace(/\.pdf$/i, "")}</div>
+                  <div style={{ fontSize: 10.5, color: "rgba(139,144,184,0.55)", marginTop: 3 }}>{doc.time ? new Date(doc.time).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</div>
                 </div>
               </div>
             ))}

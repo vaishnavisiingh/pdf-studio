@@ -2,14 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import "./SignaturePanel.css";
 
 export default function SignaturePanel({ onClose, onReady }) {
-  const [mode, setMode]           = useState("draw");
-  const [typedName, setTypedName] = useState("");
-  const [color, setColor]         = useState("blue");
-  const [fontsize, setFontsize]   = useState(20);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [mode, setMode]             = useState("draw");
+  const [typedName, setTypedName]   = useState("");
+  const [color, setColor]           = useState("blue");
+  const [fontsize, setFontsize]     = useState(20);
+  const [isDrawing, setIsDrawing]   = useState(false);
   const [hasDrawing, setHasDrawing] = useState(false);
-  const canvasRef = useRef(null);
-  const lastPos   = useRef(null);
+  const [uploadedImg, setUploadedImg] = useState(null); // base64
+  const canvasRef   = useRef(null);
+  const lastPos     = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => { clearCanvas(); }, []);
 
@@ -51,18 +53,41 @@ export default function SignaturePanel({ onClose, onReady }) {
 
   const stopDraw = () => setIsDrawing(false);
 
+  const handleUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setUploadedImg(ev.target.result.split(",")[1]); // base64 only
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const isReady = () => {
+    if (mode === "type")   return typedName.trim().length > 0;
+    if (mode === "draw")   return hasDrawing;
+    if (mode === "upload") return !!uploadedImg;
+    return false;
+  };
+
   const handleReady = () => {
+    if (!isReady()) return;
     if (mode === "type") {
-      if (!typedName.trim()) return;
       onReady({ mode: "type", name: typedName, color, fontsize });
-    } else {
-      if (!hasDrawing) return;
-      const canvas   = canvasRef.current;
-      const imageB64 = canvas.toDataURL("image/png").split(",")[1];
+    } else if (mode === "draw") {
+      const imageB64 = canvasRef.current.toDataURL("image/png").split(",")[1];
       onReady({ mode: "draw", imageB64, color });
+    } else if (mode === "upload") {
+      onReady({ mode: "draw", imageB64: uploadedImg, color });
     }
     onClose();
   };
+
+  const tabs = [
+    { id: "draw",   label: "Draw" },
+    { id: "type",   label: "Type" },
+    { id: "upload", label: "Upload Image" },
+  ];
 
   return (
     <div className="sig-overlay">
@@ -73,10 +98,16 @@ export default function SignaturePanel({ onClose, onReady }) {
         </div>
 
         <div className="sig-tabs">
-          <button className={`sig-tab ${mode === "draw" ? "active" : ""}`} onClick={() => setMode("draw")}>Draw</button>
-          <button className={`sig-tab ${mode === "type" ? "active" : ""}`} onClick={() => setMode("type")}>Type</button>
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              className={`sig-tab ${mode === t.id ? "active" : ""}`}
+              onClick={() => setMode(t.id)}
+            >{t.label}</button>
+          ))}
         </div>
 
+        {/* Draw */}
         {mode === "draw" && (
           <div className="sig-draw-area">
             <p className="sig-hint">Draw your signature below</p>
@@ -93,6 +124,7 @@ export default function SignaturePanel({ onClose, onReady }) {
           </div>
         )}
 
+        {/* Type */}
         {mode === "type" && (
           <div className="sig-type-area">
             <input
@@ -115,19 +147,61 @@ export default function SignaturePanel({ onClose, onReady }) {
           </div>
         )}
 
-        <div className="sig-options">
-          <div className="sig-option">
-            <label>Color</label>
-            <select value={color} onChange={e => setColor(e.target.value)}>
-              <option value="blue">Blue</option>
-              <option value="black">Black</option>
-              <option value="red">Red</option>
-            </select>
+        {/* Upload */}
+        {mode === "upload" && (
+          <div className="sig-upload-area">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleUpload}
+            />
+            {!uploadedImg ? (
+              <div
+                className="sig-dropzone"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span style={{ fontSize: 32, marginBottom: 10 }}>🖼</span>
+                <p style={{ fontSize: 13, color: "#8b90b8", margin: 0 }}>Click to upload signature image</p>
+                <p style={{ fontSize: 11, color: "#4a4f72", marginTop: 6 }}>PNG, JPG, GIF supported</p>
+              </div>
+            ) : (
+              <div className="sig-upload-preview">
+                <img
+                  src={`data:image/png;base64,${uploadedImg}`}
+                  alt="Signature preview"
+                  style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 6 }}
+                />
+                <button
+                  className="sig-clear"
+                  onClick={() => { setUploadedImg(null); }}
+                  style={{ marginTop: 10 }}
+                >
+                  Remove & re-upload
+                </button>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Options */}
+        <div className="sig-options">
+          {mode !== "upload" && (
+            <div className="sig-option">
+              <label>Color</label>
+              <select value={color} onChange={e => setColor(e.target.value)}>
+                <option value="blue">Blue</option>
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+              </select>
+            </div>
+          )}
           {mode === "type" && (
             <div className="sig-option">
               <label>Size</label>
-              <input type="number" min="10" max="36" value={fontsize}
+              <input
+                type="number" min="10" max="36" value={fontsize}
                 onChange={e => setFontsize(Number(e.target.value))}
               />
             </div>
@@ -141,7 +215,7 @@ export default function SignaturePanel({ onClose, onReady }) {
             <button
               className="sig-insert"
               onClick={handleReady}
-              disabled={mode === "draw" ? !hasDrawing : !typedName.trim()}
+              disabled={!isReady()}
             >
               Choose Position →
             </button>

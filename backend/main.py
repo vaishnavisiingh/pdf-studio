@@ -3,6 +3,8 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 from api.routes_crop import router as crop_router
+from api.routes_compress import router as compress_router
+from api.routes_convert import router as convert_router
 from api.routes_rotate import router as rotate_router
 from api.routes_pagedecor import router as pagedecor_router
 from api.routes_ocr import router as ocr_router
@@ -68,6 +70,8 @@ app.include_router(ocr_router, prefix="/api")
 app.include_router(pagedecor_router, prefix="/api")
 app.include_router(rotate_router, prefix="/api")
 app.include_router(crop_router, prefix="/api")
+app.include_router(compress_router, prefix="/api")
+app.include_router(convert_router, prefix="/api")
 
 
 
