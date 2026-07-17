@@ -87,11 +87,32 @@ export default function App() {
   const handleRefreshPage = useCallback(() => setRefreshKey(k => k + 1), []);
 
   const handleOpenFile = async () => {
-    const filePath = await window.electronAPI?.openFile();
-    if (!filePath) return;
-    setCurrentPage(0);
-    await open(filePath);
-    saveRecentDoc(filePath);
+    // Web mode — use file input
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        useUIStore.getState().setLoading(true, "Opening PDF...");
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const docInfo = await res.json();
+        useDocumentStore.getState().openDocument(docInfo.id, docInfo);
+        setCurrentPage(0);
+        saveRecentDoc(file.name);
+      } catch (err) {
+        console.error("Open failed:", err);
+      } finally {
+        useUIStore.getState().setLoading(false);
+      }
+    };
+    input.click();
   };
 
   const handleOpenRecent = async (filePath) => {

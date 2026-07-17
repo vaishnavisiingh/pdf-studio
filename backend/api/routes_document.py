@@ -109,6 +109,27 @@ async def open_document(req: OpenRequest, background: BackgroundTasks):
     return {"job_id": job.id}
 
 
+
+@router.post("/upload")
+async def upload_document(file: UploadFile = File(...)):
+    """Upload a PDF file and open it — web mode."""
+    import tempfile, shutil
+    
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    tmp.close()
+    
+    with open(tmp.name, "wb") as f:
+        f.write(await file.read())
+    
+    # Reuse open logic
+    from pydantic import BaseModel as BM
+    class _Req(BM):
+        file_path: str
+    fake_req = _Req(file_path=tmp.name)
+    from fastapi import BackgroundTasks
+    bt = BackgroundTasks()
+    return await open_document(fake_req, bt)
+
 @router.get("/{doc_id}/info")
 async def document_info(doc_id: str):
     session = _sessions.get(doc_id)
