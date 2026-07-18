@@ -40,6 +40,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PDF Studio API", version="0.1.0", lifespan=lifespan)
 
+@app.options("/{rest:path}")
+async def preflight_handler(rest: str):
+    from fastapi.responses import Response
+    response = Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
     if request.method == "OPTIONS":
