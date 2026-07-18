@@ -43,9 +43,9 @@ app = FastAPI(title="PDF Studio API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
-    
 )
 
 app.include_router(images_to_pdf_router, prefix="/api")
