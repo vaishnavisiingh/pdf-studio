@@ -121,14 +121,33 @@ async def upload_document(file: UploadFile = File(...)):
     with open(tmp.name, "wb") as f:
         f.write(await file.read())
     
-    # Reuse open logic
-    from pydantic import BaseModel as BM
-    class _Req(BM):
-        file_path: str
-    fake_req = _Req(file_path=tmp.name)
-    from fastapi import BackgroundTasks
-    bt = BackgroundTasks()
-    return await open_document(fake_req, bt)
+    # Direct processing for web upload
+    import uuid, shutil
+    from core.idrep import IDRepBuilder, IDRepRenderer
+    
+    doc_id = str(uuid.uuid4())
+    builder = IDRepBuilder()
+    idrep = builder.build(tmp.name, doc_id)
+    renderer = IDRepRenderer(idrep)
+    
+    _sessions[doc_id] = {
+        "idrep": idrep,
+        "renderer": renderer,
+        "history": [],
+        "history_index": -1,
+        "redo_history": [],
+    }
+    
+    import fitz
+    pdf = fitz.open(tmp.name)
+    total_pages = len(pdf)
+    pdf.close()
+    
+    return {
+        "id": doc_id,
+        "totalPages": total_pages,
+        "fileName": file.filename,
+    }
 
 @router.get("/{doc_id}/info")
 async def document_info(doc_id: str):
