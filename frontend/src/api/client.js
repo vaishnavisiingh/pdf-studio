@@ -1,9 +1,6 @@
 import axios from "axios";
-
-const BASE = "http://127.0.0.1:8000/api";
-
+const BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000") + "/api";
 const client = axios.create({ baseURL: BASE, timeout: 180000 });
-
 client.interceptors.response.use(
   res => res,
   err => {
@@ -11,5 +8,4 @@ client.interceptors.response.use(
     return Promise.reject({ code: err.response?.status, message: detail });
   }
 );
-
 export default client;
