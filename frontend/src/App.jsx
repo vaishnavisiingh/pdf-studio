@@ -98,7 +98,7 @@ export default function App() {
       formData.append("file", file);
       try {
         useUIStore.getState().setLoading(true, "Opening PDF...");
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/upload`, {
+        const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/document/upload`, {
           method: "POST",
           body: formData,
         });
