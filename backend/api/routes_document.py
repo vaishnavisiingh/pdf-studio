@@ -126,8 +126,8 @@ async def upload_document(file: UploadFile = File(...)):
     from core.idrep import IDRepBuilder, IDRepRenderer
     
     doc_id = str(uuid.uuid4())
-    builder = IDRepBuilder()
-    idrep = builder.build(tmp.name, doc_id)
+    idrep = IDRepBuilder.from_pdf(tmp.name)
+    idrep.file_path = tmp.name
     renderer = IDRepRenderer(idrep)
     
     _sessions[doc_id] = {
