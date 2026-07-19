@@ -423,7 +423,7 @@ export default function App() {
                 cropMode={cropMode}
                 onCropApplied={handleCropApplied}
               />
-            : <WelcomeScreen onOpen={handleOpenFile} onOpenRecent={handleOpenRecent} />
+            : <WelcomeScreen onOpen={handleOpenFile} />
           }
         </main>
 
@@ -482,11 +482,7 @@ export default function App() {
   );
 }
 
-function WelcomeScreen({ onOpen, onOpenRecent }) {
-  const [recent, setRecent] = useState([]);
-  useEffect(() => {
-    try { setRecent(JSON.parse(localStorage.getItem("recentDocs") || "[]")); } catch {}
-  }, []);
+function WelcomeScreen({ onOpen }) {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg-app-shell)", padding: "40px 32px 60px", overflowY: "auto" }}>
@@ -505,31 +501,6 @@ function WelcomeScreen({ onOpen, onOpenRecent }) {
       >
         <span style={{ fontSize: 42 }}>📂</span>
         <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.3px" }}>Open PDF</span>
-      </button>
-
-      {recent.length > 0 && (
-        <div style={{ width: "100%", maxWidth: 800 }}>
-          <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(139,144,184,0.6)" }}>Recent Documents</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-            {recent.slice(0, 3).map((doc, i) => (
-              <div key={i} onClick={() => onOpenRecent(doc.path)}
-                style={{ background: "rgba(26,28,48,0.6)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 14, padding: "18px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer", transition: "all 0.25s ease" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(108,99,255,0.4)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 28px rgba(108,99,255,0.18)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
-              >
-                <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: "rgba(108,99,255,0.15)", border: "1px solid rgba(108,99,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📄</div>
-                <div style={{ overflow: "hidden" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "#e8eaf6", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{(doc.name || "").replace(/\.pdf$/i, "")}</div>
-                  <div style={{ fontSize: 10.5, color: "rgba(139,144,184,0.55)", marginTop: 3 }}>{doc.time ? new Date(doc.time).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      </button>    </div>
   );
 }
