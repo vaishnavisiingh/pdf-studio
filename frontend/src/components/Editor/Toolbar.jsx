@@ -96,7 +96,7 @@ export default function Toolbar({ docId, onRefreshPage, activeTool, onToolChange
   const handleExport = async (format) => {
     if (!docId) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/export/${docId}/${format}`);
+      const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/export/${docId}/${format}`);
       if (res.ok) {
         const a = Object.assign(document.createElement("a"), {
           href: URL.createObjectURL(await res.blob()),
@@ -111,7 +111,7 @@ export default function Toolbar({ docId, onRefreshPage, activeTool, onToolChange
     if (!docId) return;
     setRepaginLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/repaginate/`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/repaginate/`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, font_name: fontName, font_size: fontSize, page_size: pageSize, margin_top: marginTop, margin_bottom: marginTop, margin_left: marginLeft, margin_right: marginLeft, line_spacing: lineSpacing, show_page_numbers: true }),
       });
@@ -126,7 +126,7 @@ export default function Toolbar({ docId, onRefreshPage, activeTool, onToolChange
   const handleWatermark = async () => {
     if (!docId) return;
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/watermark/apply`, {
+      await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/watermark/apply`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, text: watermarkText, color: watermarkColor }),
       });
@@ -142,7 +142,7 @@ export default function Toolbar({ docId, onRefreshPage, activeTool, onToolChange
     if (password !== confirmPwd) { setPwdError("Passwords do not match"); return; }
     if (password.length < 4) { setPwdError("Minimum 4 characters required"); return; }
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/security/protect`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/security/protect`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, password, confirm_password: confirmPwd }),
       });

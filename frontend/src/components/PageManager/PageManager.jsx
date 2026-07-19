@@ -32,7 +32,7 @@ export default function PageManager({ docId, totalPages, onClose }) {
     if (!pages.length) { setMessage("No valid pages entered."); return; }
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/pages/extract`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/pages/extract`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, pages }),
@@ -58,7 +58,7 @@ export default function PageManager({ docId, totalPages, onClose }) {
     if (!splitAt.length) { setMessage("Enter valid page numbers to split at."); return; }
     setLoading(true);
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/pages/split`, {
+      const res  = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/pages/split`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, split_at: splitAt }),
@@ -86,7 +86,7 @@ export default function PageManager({ docId, totalPages, onClose }) {
     const formData = new FormData();
     mergeFiles.forEach(f => formData.append("files", f));
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/pages/merge`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/pages/merge`, {
         method: "POST",
         body: formData,
       });

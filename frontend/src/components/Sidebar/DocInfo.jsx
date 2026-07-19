@@ -12,7 +12,7 @@ export default function DocInfo({ docId }) {
   const fetchInfo = async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/info/${docId}`);
+      const res  = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/info/${docId}`);
       const data = await res.json();
       setInfo(data);
     } catch (err) {

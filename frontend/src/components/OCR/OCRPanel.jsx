@@ -16,7 +16,7 @@ export default function OCRPanel({ docId, totalPages, onClose, onComplete }) {
   const checkOCR = async () => {
     setChecking(true);
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/ocr/check/${docId}`);
+      const res  = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/ocr/check/${docId}`);
       const data = await res.json();
       setOcrInfo(data);
     } catch (err) {
@@ -30,7 +30,7 @@ export default function OCRPanel({ docId, totalPages, onClose, onComplete }) {
     setProcessing(true);
     setError(null);
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/ocr/process`, {
+      const res  = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/ocr/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId }),
