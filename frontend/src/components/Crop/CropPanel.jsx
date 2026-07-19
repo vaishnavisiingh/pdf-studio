@@ -28,7 +28,7 @@ export default function CropPanel({ docId, currentPage, totalPages, onClose, onC
   const handleResize = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/crop/resize", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/crop/resize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, width: resizeW, height: resizeH, apply_to_all: applyAll }),

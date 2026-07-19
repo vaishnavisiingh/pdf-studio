@@ -133,7 +133,7 @@ export default function App() {
       const fd = new FormData(); fd.append("file", file);
       try {
         useUIStore.getState().setLoading(true, "Converting Word document...");
-        const res = await fetch("http://127.0.0.1:8000/api/import/docx", { method: "POST", body: fd });
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/import/docx`, { method: "POST", body: fd });
         const d = await res.json();
         useDocumentStore.getState().openDocument(d.id, d);
         setCurrentPage(0);
@@ -154,7 +154,7 @@ export default function App() {
       formData.append("file", file);
       try {
         useUIStore.getState().setLoading(true, "Converting PPT to PDF...");
-        const res = await fetch("http://127.0.0.1:8000/api/convert/ppt-to-pdf", { method: "POST", body: formData });
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/convert/ppt-to-pdf`, { method: "POST", body: formData });
         if (res.ok) {
           const blob = await res.blob();
           const url  = URL.createObjectURL(blob);
@@ -176,7 +176,7 @@ export default function App() {
       const fd = new FormData(); files.forEach(f => fd.append("files", f));
       try {
         useUIStore.getState().setLoading(true, "Converting images to PDF...");
-        const res = await fetch("http://127.0.0.1:8000/api/images-to-pdf/convert", { method: "POST", body: fd });
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/images-to-pdf/convert`, { method: "POST", body: fd });
         if (res.ok) {
           const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(await res.blob()), download: "images.pdf" });
           a.click();
@@ -189,7 +189,7 @@ export default function App() {
 
   const handleSavePDF = async () => {
     if (!activeDocId) return;
-    const res = await fetch(`http://127.0.0.1:8000/api/document/${activeDocId}/download`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/download`);
     if (res.ok) {
       const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(await res.blob()), download: "edited.pdf" });
       a.click();
@@ -198,19 +198,19 @@ export default function App() {
 
   const handleRevert = async () => {
     if (!activeDocId || !window.confirm("Revert to original? All changes will be lost.")) return;
-    const res = await fetch(`http://127.0.0.1:8000/api/document/${activeDocId}/revert`, { method: "POST" });
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/revert`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
 
   const handleUndo = async () => {
     if (!activeDocId) return;
-    const res = await fetch(`http://127.0.0.1:8000/api/document/${activeDocId}/undo_v2`, { method: "POST" });
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/undo_v2`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
 
   const handleRedo = async () => {
     if (!activeDocId) return;
-    const res = await fetch(`http://127.0.0.1:8000/api/document/${activeDocId}/redo_v2`, { method: "POST" });
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/redo_v2`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
 
@@ -218,8 +218,8 @@ export default function App() {
     if (!pendingSignature || !activeDocId) return;
     const sig = pendingSignature; setPendingSignature(null);
     await fetch(sig.mode === "type"
-      ? "http://127.0.0.1:8000/api/signature/text"
-      : "http://127.0.0.1:8000/api/signature/image", {
+      ? `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/signature/text`
+      : `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/signature/image`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sig.mode === "type"
         ? { doc_id: activeDocId, page: currentPage, x, y, name: sig.name, fontsize: sig.fontsize, color: sig.color }
@@ -231,7 +231,7 @@ export default function App() {
   const handleStampPlaced = async (x, y) => {
     if (!pendingStamp || !activeDocId) return;
     const s = pendingStamp; setPendingStamp(null);
-    await fetch("http://127.0.0.1:8000/api/stamp/apply", {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/stamp/apply`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ doc_id: activeDocId, page: currentPage, x, y, text: s.text, color: s.color, include_date: s.includeDate }),
     });
@@ -240,7 +240,7 @@ export default function App() {
 
   const handleCropApplied = async (rect) => {
     if (!activeDocId) return;
-    await fetch("http://127.0.0.1:8000/api/crop/page", {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/crop/page`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ doc_id: activeDocId, page: currentPage, x: rect.x, y: rect.y, width: rect.width, height: rect.height, apply_to_all: cropApplyAll }),
     });

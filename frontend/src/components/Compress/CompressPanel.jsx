@@ -18,7 +18,7 @@ export default function CompressPanel({ docId, onClose, onComplete }) {
     setError("");
     setResult(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/compress/apply", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/compress/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, quality, deflate }),

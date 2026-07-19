@@ -24,7 +24,7 @@ export default function AnnotationLayer({ docId, page, width, height, activeTool
 
   const fetchAnnotations = async () => {
     try {
-      const res  = await fetch(`http://127.0.0.1:8000/api/annotations/${docId}/page/${page}`);
+      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/annotations/${docId}/page/${page}`);
       const data = await res.json();
       setAnnotations(data.annotations || []);
     } catch (err) {
@@ -92,7 +92,7 @@ export default function AnnotationLayer({ docId, page, width, height, activeTool
 
   const saveAnnotation = async (ann) => {
     try {
-      const res  = await fetch("http://127.0.0.1:8000/api/annotations/add", {
+      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/annotations/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(ann),
@@ -114,7 +114,7 @@ export default function AnnotationLayer({ docId, page, width, height, activeTool
 
   const deleteAnnotation = async (annId) => {
     try {
-      await fetch("http://127.0.0.1:8000/api/annotations/delete", {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/annotations/delete`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, annotation_id: annId }),

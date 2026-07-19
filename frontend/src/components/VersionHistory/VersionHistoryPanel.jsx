@@ -8,7 +8,7 @@ export default function VersionHistoryPanel({ docId, onClose, onRestore }) {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/document/${docId}/history`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${docId}/history`);
       const data = await res.json();
       setSnapshots(data.snapshots || []);
     } catch (e) { console.error(e); }
@@ -20,7 +20,7 @@ export default function VersionHistoryPanel({ docId, onClose, onRestore }) {
   const handleRestore = async (index) => {
     setRestoring(index);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/document/${docId}/restore/${index}`, { method: "POST" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${docId}/restore/${index}`, { method: "POST" });
       if (res.ok) {
         await fetchHistory();
         if (onRestore) onRestore();

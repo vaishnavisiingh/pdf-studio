@@ -14,7 +14,7 @@ export default function FindReplace({ docId, onClose, onRefreshPage }) {
     setSearching(true);
     setMessage(null);
     try {
-      const res  = await fetch(`http://127.0.0.1:8000/api/search/${docId}?q=${encodeURIComponent(findText)}`);
+      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/search/${docId}?q=${encodeURIComponent(findText)}`);
       const data = await res.json();
       setResults(data.results || []);
       if ((data.results || []).length === 0) setMessage("No matches found.");
@@ -30,7 +30,7 @@ export default function FindReplace({ docId, onClose, onRefreshPage }) {
     setReplacing(true);
     setMessage(null);
     try {
-      const res  = await fetch(`http://127.0.0.1:8000/api/search/${docId}/replace`, {
+      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/search/${docId}/replace`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ find: findText, replace: replaceText }),

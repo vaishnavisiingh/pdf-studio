@@ -18,7 +18,7 @@ export default function PageDecorPanel({ docId, totalPages, onClose, onComplete 
   const handlePageNumbers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/pagedecor/page-numbers", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/pagedecor/page-numbers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, position, prefix, start_from: startFrom, fontsize: 10 }),
@@ -32,7 +32,7 @@ export default function PageDecorPanel({ docId, totalPages, onClose, onComplete 
     if (!headerText.trim() && !footerText.trim()) { setMessage("Enter header or footer text."); return; }
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/pagedecor/header-footer", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/pagedecor/header-footer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, header_text: headerText, footer_text: footerText, include_date: includeDate, fontsize: 10 }),
@@ -49,7 +49,7 @@ export default function PageDecorPanel({ docId, totalPages, onClose, onComplete 
       pages = rotatePages.split(",").map(n => parseInt(n.trim()) - 1).filter(n => !isNaN(n));
     }
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/rotate/apply", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/rotate/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId, angle: rotateAngle, pages }),

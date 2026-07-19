@@ -124,7 +124,7 @@ export default function PDFViewer({ docId, totalPages, externalPage, onPageChang
       setIsRedacting(false);
       if (!redactRect || redactRect.width < 5 || redactRect.height < 5) { setRedactRect(null); return; }
       try {
-        await fetch("http://127.0.0.1:8000/api/redact/region", {
+        await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/redact/region`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ doc_id: docId, page: currentPage, x: redactRect.x, y: redactRect.y, width: redactRect.width, height: redactRect.height, color: "black" }),
@@ -153,7 +153,7 @@ export default function PDFViewer({ docId, totalPages, externalPage, onPageChang
           const formData = new FormData();
           formData.append("file", file);
           try {
-            await fetch(`http://127.0.0.1:8000/api/insert/${docId}/image?page=${currentPage}&x=${rect.x}&y=${rect.y}&width=${rect.width}&height=${rect.height}`, { method: "POST", body: formData });
+            await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/insert/${docId}/image?page=${currentPage}&x=${rect.x}&y=${rect.y}&width=${rect.width}&height=${rect.height}`, { method: "POST", body: formData });
             fetchPage(currentPage, Date.now());
           } catch (err) { console.error("Image insert failed:", err); }
         };
@@ -187,7 +187,7 @@ export default function PDFViewer({ docId, totalPages, externalPage, onPageChang
   const handleTextInsert = async () => {
     if (!textValue.trim()) { setShowTextInput(false); return; }
     try {
-      await fetch(`http://127.0.0.1:8000/api/document/${docId}/insert-text?page=${currentPage}&x=${textPos.x}&y=${textPos.y}&text=${encodeURIComponent(textValue)}&fontsize=${fontSize}`, { method: "POST" });
+      await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${docId}/insert-text?page=${currentPage}&x=${textPos.x}&y=${textPos.y}&text=${encodeURIComponent(textValue)}&fontsize=${fontSize}`, { method: "POST" });
       setShowTextInput(false);
       fetchPage(currentPage, Date.now());
     } catch (err) { console.error("Insert text failed:", err); }
@@ -198,7 +198,7 @@ export default function PDFViewer({ docId, totalPages, externalPage, onPageChang
     const cellW = dragRect.width / tableCols;
     const cellH = dragRect.height / tableRows;
     try {
-      await fetch(`http://127.0.0.1:8000/api/document/${docId}/insert-table?page=${currentPage}&x=${dragRect.x}&y=${dragRect.y}&rows=${tableRows}&cols=${tableCols}&cell_width=${cellW}&cell_height=${cellH}`, { method: "POST" });
+      await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${docId}/insert-table?page=${currentPage}&x=${dragRect.x}&y=${dragRect.y}&rows=${tableRows}&cols=${tableCols}&cell_width=${cellW}&cell_height=${cellH}`, { method: "POST" });
       setShowTableInput(false);
       setDragRect(null);
       fetchPage(currentPage, Date.now());
@@ -209,7 +209,7 @@ export default function PDFViewer({ docId, totalPages, externalPage, onPageChang
     if (!equationValue.trim() || !dragRect) { setShowEquationInput(false); return; }
     const fontsize = Math.min(dragRect.height * 0.6, 36);
     try {
-      await fetch(`http://127.0.0.1:8000/api/document/${docId}/insert-equation?page=${currentPage}&x=${dragRect.x}&y=${dragRect.y + dragRect.height * 0.8}&equation=${encodeURIComponent(equationValue)}&fontsize=${fontsize}`, { method: "POST" });
+      await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${docId}/insert-equation?page=${currentPage}&x=${dragRect.x}&y=${dragRect.y + dragRect.height * 0.8}&equation=${encodeURIComponent(equationValue)}&fontsize=${fontsize}`, { method: "POST" });
       setShowEquationInput(false);
       setDragRect(null);
       fetchPage(currentPage, Date.now());

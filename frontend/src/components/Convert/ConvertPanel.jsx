@@ -31,7 +31,7 @@ export default function ConvertPanel({ onClose }) {
       const fd = new FormData();
       fd.append("file", file);
 
-      let url = `http://127.0.0.1:8000/api/convert/${conv.id}`;
+      let url = `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/convert/${conv.id}`;
       if (conv.id === "pdf-to-png") url += `?dpi=${dpi}`;
       if (conv.id === "pdf-to-jpg") url += `?dpi=${dpi}&quality=${quality}`;
 
