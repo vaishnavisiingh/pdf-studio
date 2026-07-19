@@ -8,7 +8,7 @@ const useDocumentStore = create((set, get) => ({
   openDocument: (docId, info) => set(state => ({
     documents: {
       ...state.documents,
-      [docId]: { info, currentPage: 0, totalPages: info.page_count }
+      [docId]: { info, currentPage: 0, totalPages: info.totalPages || info.page_count || 0 }
     },
     activeDocId: docId,
   })),
