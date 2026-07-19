@@ -63,4 +63,6 @@ async def compress_pdf(req: CompressRequest):
             "reduction_pct": round((1 - new_size / original_size) * 100, 1) if original_size > 0 else 0
         }
     except Exception as e:
+        import traceback
+        print(f"Compress error: {traceback.format_exc()}")
         raise HTTPException(500, str(e))
