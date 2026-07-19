@@ -201,7 +201,9 @@ export default function App() {
   };
 
   const handleRevert = async () => {
-    if (!activeDocId || !window.confirm("Revert to original? All changes will be lost.")) return;
+    if (!activeDocId) return;
+    if (import.meta.env.PROD) { alert("Revert is not available in web mode. Please re-upload your original PDF."); return; }
+    if (!window.confirm("Revert to original? All changes will be lost.")) return;
     const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/document/${activeDocId}/revert`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
