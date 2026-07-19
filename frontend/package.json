@@ -28,8 +28,8 @@
     "productName": "PDF Studio",
     "directories": { "output": "dist-electron" },
     "extraResources": [{ "from": "../backend", "to": "backend" }],
-    "mac":     { "target": "dmg" },
-    "win":     { "target": "nsis" },
-    "linux":   { "target": "AppImage" }
+    "mac":     { "target": "dmg", "icon": "public/icon.icns" },
+    "win":     { "target": "nsis", "icon": "public/icon.png" },
+    "linux":   { "target": "AppImage", "icon": "public/icon.png" }
   }
 }
