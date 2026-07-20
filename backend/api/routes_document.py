@@ -7,6 +7,32 @@ router = APIRouter(prefix="/document", tags=["document"])
 
 _sessions: dict = {}
 
+def _get_or_restore_session(doc_id: str):
+    """Get session or restore from disk if container restarted."""
+    if doc_id in _sessions:
+        return _sessions[doc_id]
+    
+    # Try to restore from temp file
+    import tempfile, os
+    tmp_path = os.path.join(tempfile.gettempdir(), f"pdf_studio_{doc_id}.pdf")
+    if os.path.exists(tmp_path):
+        try:
+            from core.idrep import IDRepBuilder, IDRepRenderer
+            idrep = IDRepBuilder.from_pdf(tmp_path)
+            idrep.file_path = tmp_path
+            renderer = IDRepRenderer(idrep)
+            _sessions[doc_id] = {
+                "idrep": idrep,
+                "renderer": renderer,
+                "history": [],
+                "history_index": -1,
+                "redo_history": [],
+            }
+            return _sessions[doc_id]
+        except Exception as e:
+            print(f"Session restore failed: {e}")
+    return None
+
 
 class OpenRequest(BaseModel):
     path: str
@@ -126,8 +152,14 @@ async def upload_document(file: UploadFile = File(...)):
     from core.idrep import IDRepBuilder, IDRepRenderer
     
     doc_id = str(uuid.uuid4())
-    idrep = IDRepBuilder.from_pdf(tmp.name)
-    idrep.file_path = tmp.name
+    
+    # Save to persistent temp location
+    import tempfile as tmpmod
+    persistent_path = os.path.join(tmpmod.gettempdir(), f"pdf_studio_{doc_id}.pdf")
+    shutil.copy2(tmp.name, persistent_path)
+    
+    idrep = IDRepBuilder.from_pdf(persistent_path)
+    idrep.file_path = persistent_path
     renderer = IDRepRenderer(idrep)
     
     _sessions[doc_id] = {
