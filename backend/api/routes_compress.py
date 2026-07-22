@@ -16,7 +16,6 @@ async def compress_pdf(req: CompressRequest):
     session = doc_module._sessions.get(req.doc_id)
     if not session:
         # Try restore from stable path
-        import os
         from core.idrep import IDRepBuilder, IDRepRenderer
         stable_path = f"/tmp/pdf_studio_{req.doc_id}.pdf"
         if os.path.exists(stable_path):
