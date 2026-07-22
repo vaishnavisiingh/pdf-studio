@@ -22,7 +22,7 @@ class StampRequest(BaseModel):
 
 @router.post("/apply")
 async def apply_stamp(req: StampRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

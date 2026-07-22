@@ -7,6 +7,30 @@ router = APIRouter(prefix="/document", tags=["document"])
 
 _sessions: dict = {}
 
+def get_session(doc_id: str):
+    """Get session, restoring from disk if needed (web mode)."""
+    if doc_id in _sessions:
+        return _sessions[doc_id]
+    import os
+    from core.idrep import IDRepBuilder, IDRepRenderer
+    stable_path = f"/tmp/pdf_studio_{doc_id}.pdf"
+    if os.path.exists(stable_path):
+        try:
+            idrep = IDRepBuilder.from_pdf(stable_path)
+            idrep.file_path = stable_path
+            renderer = IDRepRenderer(idrep)
+            _sessions[doc_id] = {
+                "idrep": idrep,
+                "renderer": renderer,
+                "history": [],
+                "history_index": -1,
+                "redo_history": [],
+            }
+            return _sessions[doc_id]
+        except Exception as e:
+            print(f"Session restore failed: {e}")
+    return None
+
 
 class OpenRequest(BaseModel):
     path: str
@@ -158,7 +182,7 @@ async def upload_document(file: UploadFile = File(...)):
 
 @router.get("/{doc_id}/info")
 async def document_info(doc_id: str):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     return session["idrep"].to_dict()
@@ -166,7 +190,7 @@ async def document_info(doc_id: str):
 
 @router.get("/{doc_id}/page/{page_num}")
 async def get_page(doc_id: str, page_num: int, dpi: int = 150, bust: int = 0):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     renderer = session["renderer"]
@@ -181,7 +205,7 @@ async def get_page(doc_id: str, page_num: int, dpi: int = 150, bust: int = 0):
 
 @router.get("/{doc_id}/nodes")
 async def get_nodes(doc_id: str, node_type: str = None, page: int = None):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     idrep = session["idrep"]
@@ -207,7 +231,7 @@ async def close_document(doc_id: str):
 @router.get("/{doc_id}/download")
 async def download_document(doc_id: str):
     from fastapi.responses import Response
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     with open(session["idrep"].file_path, "rb") as f:
@@ -221,7 +245,7 @@ async def download_document(doc_id: str):
 
 @router.post("/{doc_id}/revert")
 async def revert_document(doc_id: str):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
@@ -242,7 +266,7 @@ async def revert_document(doc_id: str):
 @router.post("/{doc_id}/snapshot")
 async def take_snapshot(doc_id: str):
     """Save current state as a snapshot for undo."""
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
@@ -269,7 +293,7 @@ async def take_snapshot(doc_id: str):
 
 @router.post("/{doc_id}/undo")
 async def undo_document(doc_id: str):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
@@ -287,7 +311,7 @@ async def undo_document(doc_id: str):
 
 @router.post("/{doc_id}/redo")
 async def redo_document(doc_id: str):
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
@@ -310,7 +334,7 @@ async def redo_document(doc_id: str):
 async def undo_v2(doc_id: str):
     from fastapi.responses import JSONResponse
     import shutil
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -348,7 +372,7 @@ async def undo_v2(doc_id: str):
 @router.post("/{doc_id}/redo_v2")
 async def redo_v2(doc_id: str):
     import shutil
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -382,7 +406,7 @@ def take_snapshot(session: dict, file_path: str):
 async def insert_text_on_page(doc_id: str, page: int, x: float, y: float, text: str, fontsize: float = 12):
     from fastapi.responses import JSONResponse
     import fitz, tempfile, shutil
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -430,7 +454,7 @@ async def insert_image_file(
 ):
     from fastapi import UploadFile
     import fitz, tempfile, shutil, os
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     if file is None:
@@ -478,7 +502,7 @@ async def insert_table_on_page(
     cell_height: float = 25,
 ):
     import fitz, tempfile, shutil
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -518,7 +542,7 @@ async def insert_table_on_page(
 @router.post("/{doc_id}/insert-equation")
 async def insert_equation(doc_id: str, page: int, x: float, y: float, equation: str, fontsize: float = 14):
     import fitz, tempfile, shutil
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -561,7 +585,7 @@ async def insert_equation(doc_id: str, page: int, x: float, y: float, equation: 
 @router.get("/{doc_id}/history")
 async def get_history(doc_id: str):
     """Return list of snapshots with metadata."""
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
@@ -590,7 +614,7 @@ async def get_history(doc_id: str):
 @router.post("/{doc_id}/restore/{snapshot_index}")
 async def restore_snapshot(doc_id: str, snapshot_index: int):
     """Restore a specific snapshot."""
-    session = _sessions.get(doc_id)
+    session = get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     

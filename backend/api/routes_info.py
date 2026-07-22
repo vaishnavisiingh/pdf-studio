@@ -8,7 +8,7 @@ router = APIRouter(prefix="/info", tags=["info"])
 
 @router.get("/{doc_id}")
 async def get_document_info(doc_id: str):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

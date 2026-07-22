@@ -47,7 +47,7 @@ def find_matches_with_style(page, find_text):
 
 @router.get("/{doc_id}")
 async def search_document(doc_id: str, q: str):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -83,7 +83,7 @@ async def search_document(doc_id: str, q: str):
 
 @router.post("/{doc_id}/replace")
 async def replace_in_document(doc_id: str, req: ReplaceRequest):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

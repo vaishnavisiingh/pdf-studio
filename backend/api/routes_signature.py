@@ -34,7 +34,7 @@ class ImageSignatureRequest(BaseModel):
 
 @router.post("/text")
 async def add_text_signature(req: TextSignatureRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -95,7 +95,7 @@ async def add_text_signature(req: TextSignatureRequest):
 
 @router.post("/image")
 async def add_image_signature(req: ImageSignatureRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

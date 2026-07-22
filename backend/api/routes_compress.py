@@ -13,7 +13,7 @@ class CompressRequest(BaseModel):
 
 @router.post("/apply")
 async def compress_pdf(req: CompressRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         # Try restore from stable path
         from core.idrep import IDRepBuilder, IDRepRenderer

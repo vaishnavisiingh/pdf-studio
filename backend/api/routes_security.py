@@ -18,7 +18,7 @@ class PasswordRequest(BaseModel):
 
 @router.post("/protect")
 async def protect_document(req: PasswordRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

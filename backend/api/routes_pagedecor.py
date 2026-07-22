@@ -28,7 +28,7 @@ class HeaderFooterRequest(BaseModel):
 
 @router.post("/page-numbers")
 async def add_page_numbers(req: PageNumberRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -77,7 +77,7 @@ async def add_page_numbers(req: PageNumberRequest):
 
 @router.post("/header-footer")
 async def add_header_footer(req: HeaderFooterRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

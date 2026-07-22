@@ -28,7 +28,7 @@ class ResizeRequest(BaseModel):
 
 @router.post("/page")
 async def crop_page(req: CropRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -60,7 +60,7 @@ async def crop_page(req: CropRequest):
 
 @router.post("/resize")
 async def resize_page(req: ResizeRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -93,7 +93,7 @@ async def resize_page(req: ResizeRequest):
 @router.post("/reset")
 async def reset_crop(req: CropRequest):
     """Reset crop to full page."""
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

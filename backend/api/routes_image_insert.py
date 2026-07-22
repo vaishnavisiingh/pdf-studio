@@ -15,7 +15,7 @@ async def insert_image(
     height: float = 200,
     file: UploadFile = File(...),
 ):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

@@ -40,7 +40,7 @@ class SummarizeRequest(BaseModel):
 
 @router.post("/chat")
 async def chat_with_document(req: ChatRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -78,7 +78,7 @@ If the answer is not in the document, say so clearly."""
 
 @router.post("/summarize")
 async def summarize_document(req: SummarizeRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

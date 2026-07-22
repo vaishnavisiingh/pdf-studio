@@ -88,7 +88,7 @@ def idrep_to_docx(idrep) -> bytes:
 
 @router.get("/{doc_id}/docx")
 async def export_docx(doc_id: str):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -106,7 +106,7 @@ async def export_docx(doc_id: str):
 
 @router.get("/{doc_id}/txt")
 async def export_txt(doc_id: str):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -134,7 +134,7 @@ async def export_txt(doc_id: str):
 
 @router.get("/{doc_id}/html")
 async def export_html(doc_id: str):
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

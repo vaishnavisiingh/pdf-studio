@@ -27,7 +27,7 @@ class RedactTextRequest(BaseModel):
 
 @router.post("/region")
 async def redact_region(req: RedactRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -65,7 +65,7 @@ async def redact_region(req: RedactRequest):
 
 @router.post("/text")
 async def redact_text(req: RedactTextRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 

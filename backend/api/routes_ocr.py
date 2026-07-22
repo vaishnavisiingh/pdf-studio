@@ -17,7 +17,7 @@ class OCRRequest(BaseModel):
 
 @router.post("/process")
 async def ocr_document(req: OCRRequest):
-    session = doc_module._sessions.get(req.doc_id)
+    session = doc_module.get_session(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -137,7 +137,7 @@ async def ocr_document(req: OCRRequest):
 @router.get("/check/{doc_id}")
 async def check_ocr_needed(doc_id: str):
     """Check how many pages have no text (need OCR)."""
-    session = doc_module._sessions.get(doc_id)
+    session = doc_module.get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
