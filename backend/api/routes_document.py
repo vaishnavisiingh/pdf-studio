@@ -126,8 +126,15 @@ async def upload_document(file: UploadFile = File(...)):
     from core.idrep import IDRepBuilder, IDRepRenderer
     
     doc_id = str(uuid.uuid4())
-    idrep = IDRepBuilder.from_pdf(tmp.name)
-    idrep.file_path = tmp.name
+    
+    # Save to stable path so compress/other routes can restore session
+    import os
+    stable_path = f"/tmp/pdf_studio_{doc_id}.pdf"
+    import shutil as _sh
+    _sh.copy2(tmp.name, stable_path)
+    
+    idrep = IDRepBuilder.from_pdf(stable_path)
+    idrep.file_path = stable_path
     renderer = IDRepRenderer(idrep)
     
     _sessions[doc_id] = {

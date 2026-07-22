@@ -15,7 +15,24 @@ class CompressRequest(BaseModel):
 async def compress_pdf(req: CompressRequest):
     session = doc_module._sessions.get(req.doc_id)
     if not session:
-        raise HTTPException(404, "Document not found")
+        # Try restore from stable path
+        import os
+        from core.idrep import IDRepBuilder, IDRepRenderer
+        stable_path = f"/tmp/pdf_studio_{req.doc_id}.pdf"
+        if os.path.exists(stable_path):
+            idrep = IDRepBuilder.from_pdf(stable_path)
+            idrep.file_path = stable_path
+            renderer = IDRepRenderer(idrep)
+            session = {
+                "idrep": idrep,
+                "renderer": renderer,
+                "history": [],
+                "history_index": -1,
+                "redo_history": [],
+            }
+            doc_module._sessions[req.doc_id] = session
+        else:
+            raise HTTPException(404, "Document not found")
 
     idrep = session["idrep"]
     doc_module.take_snapshot(session, idrep.file_path)
