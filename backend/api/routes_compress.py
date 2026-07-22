@@ -13,7 +13,7 @@ class CompressRequest(BaseModel):
 
 @router.post("/apply")
 async def compress_pdf(req: CompressRequest):
-    session = doc_module._sessions.get(req.doc_id) or doc_module._get_or_restore_session(req.doc_id)
+    session = doc_module._sessions.get(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
