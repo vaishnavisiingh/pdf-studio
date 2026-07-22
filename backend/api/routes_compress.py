@@ -70,7 +70,7 @@ async def compress_pdf(req: CompressRequest):
         new_size = os.path.getsize(tmp.name)
         shutil.move(tmp.name, idrep.file_path)
 
-        session["renderer"].invalidate_all()
+        session["renderer"]._page_cache.clear()
 
         return {
             "success": True,
