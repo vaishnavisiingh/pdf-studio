@@ -298,7 +298,7 @@ export default function App() {
               <button onClick={handleRedo} title="Redo" className="topbar-icon-btn">↪</button>
               <button onClick={handleRevert} title="Revert to original" className="topbar-icon-btn danger">⟳</button>
             </div>
-            <button onClick={() => setShowVersionHistory(true)} title="Version History" className="topbar-text-btn">🕒 History</button>
+            {!import.meta.env.PROD && <button onClick={() => setShowVersionHistory(true)} title="Version History" className="topbar-text-btn">🕒 History</button>}
             <button onClick={() => setShowCompress(true)} title="Compress PDF" className="topbar-text-btn">🗜 Compress</button>
             <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
             <button onClick={() => setShowAI(a => !a)} title="AI Assistant" className={`topbar-text-btn accent${showAI ? " active" : ""}`}>
