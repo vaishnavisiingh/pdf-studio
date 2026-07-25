@@ -9,7 +9,9 @@ _sessions: dict = {}
 
 def get_session(doc_id: str):
     """Get session, restoring from disk if needed (web mode)."""
+    print(f"[get_session] Looking for {doc_id}, available: {list(_sessions.keys())}")
     if doc_id in _sessions:
+        print(f"[get_session] Found in memory, history len: {len(_sessions[doc_id].get('history', []))}")
         return _sessions[doc_id]
     import os
     from core.idrep import IDRepBuilder, IDRepRenderer
@@ -389,9 +391,11 @@ async def redo_v2(doc_id: str):
 def take_snapshot(session: dict, file_path: str):
     """Call this before any edit to enable undo."""
     import shutil, tempfile
+    print(f"[snapshot] Taking snapshot of {file_path}")
     snap = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     snap.close()
     shutil.copy2(file_path, snap.name)
+    print(f"[snapshot] Saved to {snap.name}")
     if "history" not in session:
         session["history"] = []
         session["history_index"] = -1

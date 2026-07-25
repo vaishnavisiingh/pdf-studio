@@ -102,7 +102,7 @@ export default function App() {
       formData.append("file", file);
       try {
         useUIStore.getState().setLoading(true, "Opening PDF...");
-        const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/document/upload`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/upload`, {
           method: "POST",
           body: formData,
         });
@@ -204,7 +204,7 @@ export default function App() {
     if (!activeDocId) return;
     if (import.meta.env.PROD) { alert("Revert is not available in web mode. Please re-upload your original PDF."); return; }
     if (!window.confirm("Revert to original? All changes will be lost.")) return;
-    const res = await fetch(`${import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")}/api/document/${activeDocId}/revert`, { method: "POST" });
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/revert`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
 
