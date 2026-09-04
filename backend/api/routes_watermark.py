@@ -63,12 +63,6 @@ async def apply_watermark(req: WatermarkRequest):
 
         tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         tmp.close()
-        # Take snapshot before saving
-import requests as req_lib
-try:
-    req_lib.post(f"http://127.0.0.1:8000/api/document/{req.doc_id}/snapshot")
-except:
-    pass
         pdf.save(tmp.name)
         pdf.close()
         shutil.move(tmp.name, idrep.file_path)
