@@ -18,7 +18,7 @@ class WatermarkRequest(BaseModel):
 
 @router.post("/apply")
 async def apply_watermark(req: WatermarkRequest):
-    session = doc_module.get_session(req.doc_id)
+    session = doc_module._sessions.get(req.doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
 
@@ -34,9 +34,7 @@ async def apply_watermark(req: WatermarkRequest):
     rgb = color_map.get(req.color, (0.82, 0.82, 0.82))
 
     try:
-        doc_module.take_snapshot(session, idrep.file_path)
-
-        pdf   = fitz.open(idrep.file_path)
+        pdf = fitz.open(idrep.file_path)
         angle = 45 * math.pi / 180
         cos_a = math.cos(angle)
         sin_a = math.sin(angle)
@@ -45,15 +43,18 @@ async def apply_watermark(req: WatermarkRequest):
             rect     = page.rect
             center_x = rect.width / 2
             center_y = rect.height / 2
+
             positions = [
                 fitz.Point(center_x - 100, center_y),
                 fitz.Point(center_x - 100, center_y - 150),
                 fitz.Point(center_x - 100, center_y + 150),
             ]
+
             shape = page.new_shape()
             for pos in positions:
                 shape.insert_text(
-                    pos, req.text,
+                    pos,
+                    req.text,
                     fontsize=50,
                     color=rgb,
                     morph=(pos, fitz.Matrix(cos_a, sin_a, -sin_a, cos_a, 0, 0)),
@@ -62,9 +63,16 @@ async def apply_watermark(req: WatermarkRequest):
 
         tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         tmp.close()
+        # Take snapshot before saving
+import requests as req_lib
+try:
+    req_lib.post(f"http://127.0.0.1:8000/api/document/{req.doc_id}/snapshot")
+except:
+    pass
         pdf.save(tmp.name)
         pdf.close()
         shutil.move(tmp.name, idrep.file_path)
+
         renderer._page_cache.clear()
 
     except Exception as e:

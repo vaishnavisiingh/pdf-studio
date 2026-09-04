@@ -589,7 +589,7 @@ async def insert_equation(doc_id: str, page: int, x: float, y: float, equation: 
 @router.get("/{doc_id}/history")
 async def get_history(doc_id: str):
     """Return list of snapshots with metadata."""
-    session = get_session(doc_id)
+    session = _sessions.get(doc_id) or get_session(doc_id)
     if not session:
         raise HTTPException(404, "Document not found")
     
