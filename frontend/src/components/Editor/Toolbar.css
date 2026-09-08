@@ -293,3 +293,68 @@
   background: rgba(255,255,255,0.05);
   margin: 4px 0;
 }
+
+/* Dropdown */
+.dd-wrap { position: relative; }
+.dd-btn {
+  height: 30px; padding: 0 12px; border-radius: 7px;
+  border: 1px solid var(--border-default); background: transparent;
+  color: var(--text-secondary); font-size: 12px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  transition: all 0.15s ease;
+}
+.dd-btn:hover, .dd-btn.active {
+  background: var(--bg-hover); color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+.dd-arrow { font-size: 9px; opacity: 0.6; }
+.dd-menu {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  min-width: 220px; background: var(--bg-panel);
+  border: 1px solid var(--border-default); border-radius: 10px;
+  padding: 6px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 200;
+}
+.dd-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 8px 10px; border-radius: 7px;
+  border: none; background: transparent; cursor: pointer;
+  text-align: left; transition: background 0.15s ease;
+}
+.dd-item:hover { background: var(--bg-hover); }
+.dd-item.danger .dd-item-label { color: var(--danger); }
+.dd-item-icon { font-size: 14px; width: 20px; text-align: center; }
+.dd-item-label { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.dd-item-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+.dd-wrap { position: relative; }
+.dd-btn {
+  height: 30px; padding: 0 12px; border-radius: 7px;
+  border: 1px solid var(--border-default); background: transparent;
+  color: var(--text-secondary); font-size: 12px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  transition: all 0.15s ease;
+}
+.dd-btn:hover, .dd-btn.active {
+  background: var(--bg-hover); color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+.dd-arrow { font-size: 9px; opacity: 0.6; }
+.dd-menu {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  min-width: 220px; background: var(--bg-panel);
+  border: 1px solid var(--border-default); border-radius: 10px;
+  padding: 6px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 200;
+}
+.dd-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 8px 10px; border-radius: 7px;
+  border: none; background: transparent; cursor: pointer;
+  text-align: left; transition: background 0.15s ease;
+}
+.dd-item:hover { background: var(--bg-hover); }
+.dd-item.danger .dd-item-label { color: var(--danger); }
+.dd-item-icon { font-size: 14px; width: 20px; text-align: center; }
+.dd-item-label { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.dd-item-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
