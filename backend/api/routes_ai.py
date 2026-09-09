@@ -73,6 +73,8 @@ If the answer is not in the document, say so clearly."""
         )
         return {"reply": response.choices[0].message.content, "role": "assistant"}
     except Exception as e:
+        import traceback
+        print(f"AI error: {traceback.format_exc()}")
         raise HTTPException(500, f"AI error: {str(e)}")
 
 
@@ -104,4 +106,6 @@ Document:
         )
         return {"summary": response.choices[0].message.content}
     except Exception as e:
+        import traceback
+        print(f"AI error: {traceback.format_exc()}")
         raise HTTPException(500, f"AI error: {str(e)}")
