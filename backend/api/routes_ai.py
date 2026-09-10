@@ -67,7 +67,7 @@ If the answer is not in the document, say so clearly."""
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.3-70b-versatile",
             messages=messages,
             max_tokens=1024,
         )
@@ -88,7 +88,7 @@ async def summarize_document(req: SummarizeRequest):
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": "You are a helpful document summarizer."},
                 {"role": "user", "content": f"""Provide a clear structured summary of this document.
