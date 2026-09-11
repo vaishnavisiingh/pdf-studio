@@ -259,8 +259,16 @@ async def revert_document(doc_id: str):
     import shutil
     shutil.copy2(idrep.original_path, idrep.file_path)
     
-    # Clear renderer cache
+    # Clear renderer cache and reset version history
     session["renderer"]._page_cache.clear()
+    session["history"] = []
+    session["history_index"] = -1
+    session["redo_history"] = []
+    try:
+        import api.routes_annotations as ann_module
+        ann_module._annotations.pop(doc_id, None)
+    except Exception:
+        pass
     
     return {"reverted": True}
 
