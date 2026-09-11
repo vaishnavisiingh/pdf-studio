@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
-const path   = require("path");
+const path = require("path");
+const fs = require("fs");
 const { spawn } = require("child_process");
 
 let mainWindow;
@@ -12,19 +13,41 @@ function startBackend() {
     ? path.join(__dirname, "../../backend")
     : path.join(process.resourcesPath, "backend");
 
-  const python = process.platform === "win32" ? "python" : "python3";
+  let pythonExecutable = process.platform === "win32" ? "python" : "python3";
 
-  backendProcess = spawn(python, ["-m", "uvicorn", "main:app",
-    "--host", "127.0.0.1", "--port", "8000"], {
-    cwd: backendPath,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  // Check for virtualenv python executable in backendPath or workspace
+  const venvPythonPath = process.platform === "win32"
+    ? path.join(backendPath, "venv", "Scripts", "python.exe")
+    : path.join(backendPath, "venv", "bin", "python");
 
-  backendProcess.stdout.on("data", d => console.log("[backend]", d.toString()));
-  backendProcess.stderr.on("data", d => console.error("[backend]", d.toString()));
+  if (fs.existsSync(venvPythonPath)) {
+    pythonExecutable = venvPythonPath;
+  }
+
+  console.log(`[electron] Starting backend at ${backendPath} using ${pythonExecutable}`);
+
+  backendProcess = spawn(
+    pythonExecutable,
+    ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
+    {
+      cwd: backendPath,
+      stdio: ["ignore", "pipe", "pipe"],
+    }
+  );
+
+  if (backendProcess.stdout) {
+    backendProcess.stdout.on("data", d => console.log("[backend]", d.toString().trim()));
+  }
+  if (backendProcess.stderr) {
+    backendProcess.stderr.on("data", d => console.error("[backend]", d.toString().trim()));
+  }
 
   backendProcess.on("exit", code => {
     console.log(`[backend] exited with code ${code}`);
+  });
+
+  backendProcess.on("error", err => {
+    console.error("[backend] failed to start process:", err.message);
   });
 
   console.log("[electron] Backend process started, PID:", backendProcess.pid);
@@ -35,11 +58,15 @@ async function waitForBackend(retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch("http://127.0.0.1:8000/api/health");
-      if (res.ok) return true;
+      if (res.ok) {
+        console.log("[electron] Backend is healthy and responding.");
+        return true;
+      }
     } catch (_) {}
     await new Promise(r => setTimeout(r, delay));
   }
-  throw new Error("Backend failed to start in time");
+  console.warn("[electron] Backend health check timed out. Proceeding to create window.");
+  return false;
 }
 
 // ── Create main window ────────────────────────────────────
@@ -90,13 +117,26 @@ ipcMain.handle("dialog:saveFile", async (_, defaultName) => {
 
 // ── App lifecycle ─────────────────────────────────────────
 app.whenReady().then(async () => {
-  console.log("[electron] Assuming backend is already running on port 8000");
+  try {
+    startBackend();
+    await waitForBackend();
+  } catch (err) {
+    console.error("[electron] Backend startup error:", err.message);
+  }
   await createWindow();
 });
 
 app.on("window-all-closed", () => {
-  if (backendProcess) backendProcess.kill();
+  if (backendProcess) {
+    try { backendProcess.kill(); } catch (_) {}
+  }
   if (process.platform !== "darwin") app.quit();
+});
+
+app.on("will-quit", () => {
+  if (backendProcess) {
+    try { backendProcess.kill(); } catch (_) {}
+  }
 });
 
 app.on("activate", () => {

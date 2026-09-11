@@ -18,9 +18,13 @@ import SettingsPanel from "./components/Settings/SettingsPanel";
 import CompressPanel from "./components/Compress/CompressPanel";
 import VersionHistoryPanel from "./components/VersionHistory/VersionHistoryPanel";
 
-const API_BASE = import.meta.env.PROD 
-  ? "" 
-  : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000");
+const isElectron = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean(window.electronAPI));
+
+const API_BASE = isElectron
+  ? (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")
+  : import.meta.env.PROD 
+    ? "" 
+    : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000");
 
 function saveRecentDoc(filePath) {
   try {
@@ -202,9 +206,9 @@ export default function App() {
 
   const handleRevert = async () => {
     if (!activeDocId) return;
-    if (import.meta.env.PROD) { alert("Revert is not available in web mode. Please re-upload your original PDF."); return; }
+    if (import.meta.env.PROD && !isElectron) { alert("Revert is not available in web mode. Please re-upload your original PDF."); return; }
     if (!window.confirm("Revert to original? All changes will be lost.")) return;
-    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/document/${activeDocId}/revert`, { method: "POST" });
+    const res = await fetch(`${API_BASE}/api/document/${activeDocId}/revert`, { method: "POST" });
     if (res.ok) setRefreshKey(k => k + 1);
   };
 
@@ -298,7 +302,7 @@ export default function App() {
               <button onClick={handleRedo} title="Redo" className="topbar-icon-btn">↪</button>
               <button onClick={handleRevert} title="Revert to original" className="topbar-icon-btn danger">⟳</button>
             </div>
-            {!import.meta.env.PROD && <button onClick={() => setShowVersionHistory(true)} title="Version History" className="topbar-text-btn">🕒 History</button>}
+            {(!import.meta.env.PROD || isElectron) && <button onClick={() => setShowVersionHistory(true)} title="Version History" className="topbar-text-btn">🕒 History</button>}
             <button onClick={() => setShowCompress(true)} title="Compress PDF" className="topbar-text-btn">🗜 Compress</button>
             <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
             <button onClick={() => setShowAI(a => !a)} title="AI Assistant" className={`topbar-text-btn accent${showAI ? " active" : ""}`}>

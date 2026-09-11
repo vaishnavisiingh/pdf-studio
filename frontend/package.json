@@ -46,11 +46,18 @@
     "linux": {
       "target": "AppImage",
       "icon": "public/icon.png"
-    }
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ]
   },
   "allowScripts": {
     "electron@31.7.7": true,
     "esbuild@0.21.5": true,
     "fsevents@2.3.3": true
-  }
+  },
+  "description": "PDF Studio Desktop Application",
+  "author": "PDF Studio"
 }
