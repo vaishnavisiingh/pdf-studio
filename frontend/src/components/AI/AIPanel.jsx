@@ -7,15 +7,15 @@ const API_BASE = isElectron
   : (import.meta.env.VITE_API_URL || "");
 
 export default function AIPanel({ docId, onClose }) {
-  const [messages, setMessages]   = useState([]);
-  const [input, setInput]         = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
 
   const handleSummarize = async () => {
     setSummarizing(true);
     try {
-      const res  = await fetch(`${API_BASE}/api/ai/summarize`, {
+      const res = await fetch(`${API_BASE}/api/ai/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId }),
@@ -41,7 +41,7 @@ export default function AIPanel({ docId, onClose }) {
     setLoading(true);
 
     try {
-      const res  = await fetch(`${API_BASE}/api/ai/chat`, {
+      const res = await fetch(`${API_BASE}/api/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
