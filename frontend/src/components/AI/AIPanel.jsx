@@ -1,6 +1,11 @@
 import { useState } from "react";
 import "./AIPanel.css";
 
+const isElectron = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean(window.electronAPI));
+const API_BASE = isElectron
+  ? (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000")
+  : (import.meta.env.VITE_API_URL || "");
+
 export default function AIPanel({ docId, onClose }) {
   const [messages, setMessages]   = useState([]);
   const [input, setInput]         = useState("");
@@ -10,15 +15,18 @@ export default function AIPanel({ docId, onClose }) {
   const handleSummarize = async () => {
     setSummarizing(true);
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/ai/summarize`, {
+      const res  = await fetch(`${API_BASE}/api/ai/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ doc_id: docId }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Summarization failed.");
+      }
       setMessages([{ role: "assistant", content: data.summary }]);
     } catch (err) {
-      setMessages([{ role: "assistant", content: "Summarization failed." }]);
+      setMessages([{ role: "assistant", content: `Summarization failed: ${err.message || "Unknown error"}` }]);
     } finally {
       setSummarizing(false);
     }
@@ -33,7 +41,7 @@ export default function AIPanel({ docId, onClose }) {
     setLoading(true);
 
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/ai/chat`, {
+      const res  = await fetch(`${API_BASE}/api/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -43,9 +51,12 @@ export default function AIPanel({ docId, onClose }) {
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "AI response error.");
+      }
       setMessages([...newMessages, { role: "assistant", content: data.reply }]);
     } catch (err) {
-      setMessages([...newMessages, { role: "assistant", content: "Error. Try again." }]);
+      setMessages([...newMessages, { role: "assistant", content: `Error: ${err.message || "Try again."}` }]);
     } finally {
       setLoading(false);
     }
