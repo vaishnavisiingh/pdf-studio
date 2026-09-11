@@ -172,8 +172,9 @@ export default function Toolbar({ docId, onRefreshPage, activeTool, onToolChange
 
         <Dropdown label="File">
           <DropItem icon="💾" label="Save PDF" sublabel="Download working copy" onClick={() => callbacks?.onSave?.()} />
-          <DropItem icon="📄" label="Import Word" sublabel=".docx → PDF" onClick={() => callbacks?.onImportDocx?.()} />
+          <DropItem icon="📝" label="Word → PDF" sublabel="Import .docx file" onClick={() => callbacks?.onImportDocx?.()} />
           <DropItem icon="🖼" label="Images → PDF" sublabel="Combine images into PDF" onClick={() => callbacks?.onImagesToPDF?.()} />
+          <DropItem icon="📊" label="PPT → PDF" sublabel="PowerPoint to PDF" onClick={() => callbacks?.onPptToPdf?.()} />
           <DropItem icon="↩" label="Undo" onClick={() => callbacks?.onUndo?.()} />
           <DropItem icon="↪" label="Redo" onClick={() => callbacks?.onRedo?.()} />
           <DropItem icon="⟳" label="Revert to Original" sublabel="Discard all changes" onClick={() => callbacks?.onRevert?.()} danger />
